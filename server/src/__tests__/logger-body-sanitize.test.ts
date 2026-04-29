@@ -95,4 +95,34 @@ describe("HTTP logger body sanitization", () => {
     expect((props.reqBody as any).secret).toBe("[REDACTED]");
     expect((props.reqBody as any).name).toBe("Bot");
   });
+
+  it("redacts sensitive fields nested inside sub-objects", () => {
+    const props = capturedCustomProps!(
+      {
+        url: "/api/companies/1/integrations",
+        body: { label: "prod", credentials: { apiKey: "sk-secret", password: "hunter2" } },
+        params: {},
+        query: {},
+      },
+      { statusCode: 400 },
+    );
+
+    expect((props.reqBody as any).label).toBe("prod");
+    expect((props.reqBody as any).credentials.apiKey).toBe("[REDACTED]");
+    expect((props.reqBody as any).credentials.password).toBe("[REDACTED]");
+  });
+
+  it("does not redact non-sensitive fields named code", () => {
+    const props = capturedCustomProps!(
+      {
+        url: "/api/companies/1/issues",
+        body: { code: "PAP-123", status: "todo" },
+        params: {},
+        query: {},
+      },
+      { statusCode: 400 },
+    );
+
+    expect((props.reqBody as any).code).toBe("PAP-123");
+  });
 });
