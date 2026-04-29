@@ -38,6 +38,7 @@ import {
   parseProjectExecutionWorkspacePolicy,
 } from "./execution-workspace-policy.js";
 import { instanceSettingsService } from "./instance-settings.js";
+import { logger } from "../middleware/logger.js";
 import { redactCurrentUserText } from "../log-redaction.js";
 import { resolveIssueGoalId, resolveNextIssueGoalId } from "./issue-goal-fallback.js";
 import { getDefaultCompanyGoal } from "./goals.js";
@@ -3365,6 +3366,21 @@ export function issueService(db: Db) {
 
       if (!issue) throw notFound("Issue not found");
 
+      // Verify that the runId exists in heartbeat_runs before inserting to avoid a
+      // FK violation 500 when a caller supplies a stale or fabricated x-paperclip-run-id.
+      let resolvedRunId: string | null = actor.runId ?? null;
+      if (resolvedRunId) {
+        const runExists = await db
+          .select({ id: heartbeatRuns.id })
+          .from(heartbeatRuns)
+          .where(eq(heartbeatRuns.id, resolvedRunId))
+          .then((rows) => rows.length > 0);
+        if (!runExists) {
+          logger.warn({ runId: resolvedRunId, issueId }, "addComment: ignoring unknown x-paperclip-run-id");
+          resolvedRunId = null;
+        }
+      }
+
       const currentUserRedactionOptions = {
         enabled: (await instanceSettings.getGeneral()).censorUsernameInLogs,
       };
@@ -3376,7 +3392,7 @@ export function issueService(db: Db) {
           issueId,
           authorAgentId: actor.agentId ?? null,
           authorUserId: actor.userId ?? null,
-          createdByRunId: actor.runId ?? null,
+          createdByRunId: resolvedRunId,
           body: redactedBody,
         })
         .returning();
