@@ -30,14 +30,15 @@ const sharedOpts = {
 const SENSITIVE_BODY_KEYS = new Set([
   "password", "newPassword", "currentPassword", "confirmPassword",
   "token", "accessToken", "refreshToken", "resetToken", "verificationToken",
-  "apiKey", "api_key", "secret", "otp", "code",
+  "apiKey", "api_key", "secret", "otp",
+  // "code" intentionally omitted — too broad; would suppress error/issue/promo codes
 ]);
 
 function sanitizeBody(body: unknown): unknown {
   if (!body || typeof body !== "object" || Array.isArray(body)) return body;
   const sanitized: Record<string, unknown> = {};
   for (const [key, value] of Object.entries(body as Record<string, unknown>)) {
-    sanitized[key] = SENSITIVE_BODY_KEYS.has(key) ? "[REDACTED]" : value;
+    sanitized[key] = SENSITIVE_BODY_KEYS.has(key) ? "[REDACTED]" : sanitizeBody(value);
   }
   return sanitized;
 }
@@ -88,6 +89,7 @@ export const httpLogger = pinoHttp({
       const isAuthRoute = typeof req.url === "string" && req.url.startsWith("/api/auth");
       if (isAuthRoute) return {};
 
+      // Auth routes already returned {} above, so this branch never runs for them.
       const ctx = (res as any).__errorContext;
       if (ctx) {
         return {

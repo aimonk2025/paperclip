@@ -187,6 +187,9 @@ function sameRunLock(checkoutRunId: string | null, actorRunId: string | null) {
 
 const TERMINAL_HEARTBEAT_RUN_STATUSES = new Set(["succeeded", "failed", "cancelled", "timed_out"]);
 const ISSUE_LIST_DESCRIPTION_MAX_CHARS = 1200;
+// Must stay in sync: BYTES = CHARS × 4 (max UTF-8 bytes per code point).
+// descriptionTruncated in issueListSelect checks the char limit; the SQL
+// substring checks the byte limit. If these drift, the flag can give false negatives.
 const ISSUE_LIST_DESCRIPTION_MAX_BYTES = ISSUE_LIST_DESCRIPTION_MAX_CHARS * 4;
 
 function escapeLikePattern(value: string): string {
