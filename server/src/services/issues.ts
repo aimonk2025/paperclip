@@ -3388,17 +3388,41 @@ export function issueService(db: Db) {
         enabled: (await instanceSettings.getGeneral()).censorUsernameInLogs,
       };
       const redactedBody = redactCurrentUserText(body, currentUserRedactionOptions);
-      const [comment] = await db
-        .insert(issueComments)
-        .values({
-          companyId: issue.companyId,
-          issueId,
-          authorAgentId: actor.agentId ?? null,
-          authorUserId: actor.userId ?? null,
-          createdByRunId: resolvedRunId,
-          body: redactedBody,
-        })
-        .returning();
+
+      // The pre-check above handles the common case, but a TOCTOU race (run deleted
+      // between the SELECT and the INSERT) can still trigger a FK violation. Catch it
+      // and retry with null so the comment is never lost.
+      let comment: typeof issueComments.$inferSelect;
+      try {
+        [comment] = await db
+          .insert(issueComments)
+          .values({
+            companyId: issue.companyId,
+            issueId,
+            authorAgentId: actor.agentId ?? null,
+            authorUserId: actor.userId ?? null,
+            createdByRunId: resolvedRunId,
+            body: redactedBody,
+          })
+          .returning();
+      } catch (err) {
+        if (resolvedRunId && (err as { code?: string }).code === "23503") {
+          logger.warn({ runId: resolvedRunId, issueId }, "addComment: FK violation on created_by_run_id, retrying with null");
+          [comment] = await db
+            .insert(issueComments)
+            .values({
+              companyId: issue.companyId,
+              issueId,
+              authorAgentId: actor.agentId ?? null,
+              authorUserId: actor.userId ?? null,
+              createdByRunId: null,
+              body: redactedBody,
+            })
+            .returning();
+        } else {
+          throw err;
+        }
+      }
 
       // Update issue's updatedAt so comment activity is reflected in recency sorting
       await db
