@@ -1251,6 +1251,12 @@ const issueListSelect = {
       )
     END
   `,
+  descriptionTruncated: sql<boolean>`
+    CASE
+      WHEN ${issues.description} IS NULL THEN false
+      ELSE length(${issues.description}) > ${ISSUE_LIST_DESCRIPTION_MAX_CHARS}
+    END
+  `,
   status: issues.status,
   priority: issues.priority,
   assigneeAgentId: issues.assigneeAgentId,
@@ -2085,6 +2091,7 @@ export function issueService(db: Db) {
       const rows = (limit === undefined ? await baseQuery : await baseQuery.limit(limit)).map((row) => ({
         ...row,
         description: decodeDatabaseTextPreview(row.description, ISSUE_LIST_DESCRIPTION_MAX_CHARS),
+        descriptionTruncated: row.descriptionTruncated ?? false,
       }));
       const withLabels = await withIssueLabels(db, rows);
       const runMap = await activeRunMapForIssues(db, withLabels);
