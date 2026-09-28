@@ -1,0 +1,77 @@
+{
+  "features": [
+    {
+      "community": "41",
+      "name": "Claude agent execution engine with sandbox config seeding",
+      "summary": "Executes Claude coding-agent runs through either an ACP engine or the Claude CLI, automatically falling back to the CLI (with a logged reason) when local filesystem/network confinement or environment checks require it, and attributing each run's cost to Anthropic subscription, API, or AWS Bedrock billing. For remote sandbox runs it ships a sanitized Claude config seed (settings stripped of hooks/MCP/permission overrides, plus CLAUDE.md), materializes an in-sandbox config dir, and syncs the workspace back at teardown. Run output is parsed from CLI stream-json into session, per-model token usage, and failure classes such as login-required, provider quota with reset time, and model-not-found."
+    },
+    {
+      "community": "38",
+      "name": "Claude subscription quota monitoring",
+      "summary": "Surfaces how much of a Claude subscription has been consumed by reading the locally stored OAuth token and querying Anthropic's OAuth usage API for current-session, weekly (all/Sonnet/Opus), and extra-usage windows, guarded by an abort-based timeout so a hanging provider API cannot block the response. When the API path fails it falls back to driving the Claude CLI's interactive usage panel, cleaning ANSI/backspace artifacts and validating the panel before extracting percentages, currency labels, and reset times."
+    },
+    {
+      "community": "9",
+      "name": "Codex agent execution with sandbox credential sync",
+      "summary": "Runs Codex agent sessions on either an ACP engine or the CLI lane, forcing the CLI when in-place workspace realization or local filesystem/network confinement requires spawn-level isolation, and normalizing legacy model aliases into the ACP session config. For sandboxed remote runs it stages the managed Codex home (auth.json, config.toml, skills) into the sandbox with an inbound auth-merge provision and an outbound credential copy-back at every teardown — protecting single-use refresh tokens so a refreshed sandbox token can never spend and corrupt the host credential."
+    }
+  ],
+  "files": [
+    {
+      "path": "packages/adapters/claude-local/src/server/acp.ts",
+      "community": "41",
+      "summary": "Resolves whether a Claude run executes on the ACP engine or falls back to the Claude CLI, forcing the CLI lane when local filesystem/network confinement is configured (throwing if ACP was explicit) and recording a fallbackReason otherwise. It builds the ACP session config from defaults, classifies billing identity (anthropic subscription vs API vs aws_bedrock metered), and for runner-backed remote sandbox runs seeds a sanitized Claude config into the sandbox and registers a fail-open workspace sync-back on teardown.",
+      "tags": ["engine-selection", "acp", "fallback", "billing-identity", "remote-sandbox"],
+      "behavior": [
+        "Falls back from ACP to Claude CLI with a logged fallback message when local filesystem/network scopes are set or ACP defaults are unavailable; explicit engine=acp plus confinement throws an error instead of falling back.",
+        "Resolves billing identity as anthropic/subscription, anthropic/api, or aws_bedrock/metered_api from adapter-config env plus host env (host env only consulted for non-remote execution targets).",
+        "On remote managed-home runs, stages a sanitized config-seed asset, materializes an in-sandbox config dir copying the sandbox's own credentials in, repoints CLAUDE_CONFIG_DIR onto it, and restores the workspace to host at teardown without ever failing the run on a restore error."
+      ]
+    },
+    {
+      "path": "packages/adapters/claude-local/src/server/claude-config.ts",
+      "community": "41",
+      "summary": "Builds content-addressed snapshots of sanitized Claude config files (settings.json with hooks, mcpServers, and permission overrides removed, plus CLAUDE.md) under a per-company Paperclip instance root, then materializes them into remote sandboxes next to sandbox-held credentials via shell commands. It also writes per-run MCP server configs with bearer tokens and prepares the sandbox probe runtime (installing the Claude CLI when absent) shared by both the CLI and ACP test lanes.",
+      "tags": ["config-seeding", "sanitization", "snapshot", "mcp-config", "sandbox-probe"],
+      "behavior": [
+        "Sanitizes seeded settings.json to permissions.defaultMode=default and deletes hooks, mcpServers, permissionMode, and skipDangerousModePermissionPrompt before the file leaves the host.",
+        "Materializes seed snapshots keyed by a sha256-derived prefix using mkdtemp staging plus atomic rename, tolerating EEXIST races from concurrent materialization.",
+        "Writes mcp-config.json with mode 0600 per run, wiring MCP servers as HTTP endpoints with Authorization bearer headers and de-duplicating names via connectionId suffixes.",
+        "prepareSandboxClaudeProbeRuntime installs the Claude CLI in the sandbox when missing and honors an operator-provided CLAUDE_CONFIG_DIR over the managed materialization, so CLI and ACP lanes probe the same login state."
+      ]
+    },
+    {
+      "path": "packages/adapters/claude-local/src/server/parse.ts",
+      "community": "41",
+      "summary": "Parses Claude CLI stream-json output into sessionId, model, cost, usage, and a summary, preferring the CLI's authoritative per-model modelUsage ledger (which counts cache-creation tokens as input) over the undercounting top-level usage that misses subagents. It classifies failures with layered regex taxonomies: login-prompt markers match any output line, while auth-token-failure markers match only the parsed terminal fields of an already-failed run so model prose cannot flip the classifier; further detectors cover transient upstream, provider quota with reset-time extraction, model-not-found, max-turns, refusal, and session/poisoned-message errors.",
+      "tags": ["stream-parsing", "usage-accounting", "auth-detection", "error-classification", "quota"],
+      "behavior": [
+        "Detects login-required two ways: broad login-prompt regexes against every output line (raw stdout/stderr included), but token-failure regexes only against the parsed result/error/errors fields of a run already marked as failed.",
+        "claudeModelUsageTotals sums per-model input+cacheCreation, output, and cachedRead tokens and marks usageBasis=per_run so the server skips its session-cumulative delta heuristic.",
+        "Classifies transient upstream errors (429/503/529, overloaded, throttling), provider quota with an extra-usage reset-time capture, model-not-found, max-turns, refusal, unknown-session, and poisoned-previous-message-id conditions from result payloads."
+      ]
+    },
+    {
+      "path": "packages/adapters/claude-local/src/server/quota.ts",
+      "community": "38",
+      "summary": "Reads Claude subscription quota by invoking `claude auth status`, extracting the OAuth access token from the local Claude credentials files, and fetching Anthropic's OAuth usage endpoint to produce labeled quota windows (current session, weekly all-models/Sonnet/Opus, extra-usage pool). It also scrapes the CLI's interactive usage panel as a fallback, cleaning backspace/ANSI artifacts and trimming output to the latest usage panel before relevance and completeness checks.",
+      "tags": ["quota", "oauth", "anthropic-usage-api", "terminal-scraping", "timeout-guard"],
+      "behavior": [
+        "Fetches api.anthropic.com/api/oauth/usage with the stored OAuth token and anthropic-beta header via an AbortController timeout (default 8s) so a hanging provider API cannot block the response.",
+        "Strips backspace and ANSI escape sequences from CLI output, trims to the latest Settings/usage panel between stop markers, and rejects panels lacking session/week/percentage content as incomplete.",
+        "Normalizes utilization to a 0-100 integer percent handling both 0-1 fractions and 0-100 percentages, and formats extra-usage credits from cents into a currency label against the monthly limit."
+      ]
+    },
+    {
+      "path": "packages/adapters/codex-local/src/server/acp.ts",
+      "community": "9",
+      "summary": "Mirrors the Claude ACP lane for Codex: resolves the acp/cli engine selection, forcing the CLI for in-place workspace realization or local filesystem/network confinement (throwing if ACP was explicit, otherwise falling back with a reason). It builds the ACP config with normalized model slugs, and for remote sandbox runs stages the managed CODEX_HOME (auth.json, config.toml, skills) as a sandbox asset with an inbound auth-merge provision and an outbound copy-back of refreshed credentials at teardown — never seeding without copy-back, because single-use Codex refresh tokens would otherwise corrupt the host credential.",
+      "tags": ["engine-selection", "acp", "auth-copyback", "remote-sandbox", "codex"],
+      "behavior": [
+        "Throws when engine=acp is explicitly combined with in-place workspace realization or local confinement; otherwise silently selects the CLI engine and attaches a fallbackReason to the run.",
+        "Stages a curated-allowlist temp copy of the Codex home (auth/config/skills only) into the sandbox and repoints env.CODEX_HOME from the host path onto the in-sandbox asset dir.",
+        "Copies refreshed sandbox auth.json back to the shared host auth.json on every run teardown (including resumes) under a merge-lock, atomic-rename, 0600-permission guard, and cleans up the host staging dir only via disposeStaged so cached runtimes stay reusable."
+      ]
+    }
+  ]
+}

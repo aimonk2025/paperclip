@@ -1,0 +1,92 @@
+{
+  "features": [
+    {
+      "community": "91",
+      "name": "Pipeline and case workflow orchestration",
+      "summary": "Lets teams define multi-stage pipelines with configurable, optionally-enforced stage transitions, then drive work through them as cases: ingest (single or batch), list/search by stage/parent/terminal state, claim/release with expiring leases, and transition with optimistic version checks. Cases support AI-style stage-transition suggestions (with rationale and confidence) that reviewers accept or dismiss, a review inbox with approve/reject/request-changes and bulk review from file, cross-case blocking relationships, parent/child hierarchies, and per-stage on-enter automations that run routines."
+    },
+    {
+      "community": "8",
+      "name": "Isolated instance lifecycle: background service, seeded worktrees, and managed secrets",
+      "summary": "Runs the platform as a supervised local service (install/start/stop/restart with health polling and a lock-protected hot-restart handshake that writes intent/report files and waits for a specific server version). Provides isolated git-worktree instances seeded from another instance's database — backup/restore, migrations, rebound workspaces — while quarantining execution (disabling timer heartbeats, resetting running agents, quarantining in-progress issues) and later merging issue/comment/attachment/document history back. Also manages a .env file next to the config, generating and persisting the agent JWT secret and atomically merging only PAPERCLIP_-owned entries."
+    },
+    {
+      "community": "79",
+      "name": "Self-updating managed CLI installs with rollback",
+      "summary": "Maintains a versioned install store under the Paperclip home directory holding multiple CLI payloads from npm or git sources across channels (latest, canary, pinned), tracked by a manifest that records previous versions for rollback. Activation is an atomic flip of a `current` symlink guarded by marker/ownership/symlink safety checks and a PID-aware cross-process lock, with a shim binary in ~/.local/bin and a managed PATH block in shell configs."
+    },
+    {
+      "community": "56",
+      "name": "Cross-platform background service supervision",
+      "summary": "Registers and controls the platform as a native user service on Linux (systemd) and macOS (launchd) by rendering escaped unit/plist definitions and writing them atomically with ownership and symlink-safety checks. Supports install/uninstall, start/stop/restart, status with reported PID, log following, start-on-login enablement, and systemd linger (with explicit consent) so the service runs without an active login session."
+    }
+  ],
+  "files": [
+    {
+      "path": "cli/src/commands/pipelines.ts",
+      "community": "91",
+      "summary": "Registers the `pipelines` CLI command group covering pipeline CRUD (create/list/get), transition-edge replacement, guidance documents, per-stage `run_routine` on-enter automations, case ingest (single and batch from file), case listing/editing, lease-based claim/release, version-checked transitions, transition suggestions with accept/dismiss resolution, a review flow (approve/reject/request-changes with edits), blocking relationships, and a review inbox with bulk review. All commands resolve company context and call REST endpoints under /api/companies/:id/pipelines and /api/pipelines/:id, printing as formatted text or JSON.",
+      "tags": ["cli", "pipelines", "case-management", "workflow", "review-queue"],
+      "behavior": [
+        "Creates pipelines with stages supplied inline (--stages-json) or from a file, and can replace the full transition edge set and toggle transition enforcement via set-transitions.",
+        "Case operations are concurrency-safe by design: claim/release take lease tokens, and transitions/reviews/edits require an expectedVersion plus optional leaseToken.",
+        "Exposes a suggestion workflow (suggest with rationale/confidence, then resolve-suggestion with accept/dismiss) and a review inbox supporting bulk decisions loaded from a JSON file."
+      ]
+    },
+    {
+      "path": "cli/src/commands/service.ts",
+      "community": "8",
+      "summary": "Implements the `service` CLI group for managing Paperclip as a background service (install with optional linger consent, uninstall, start/stop/restart, status/logs) and a hot-restart flow used by the platform itself. Hot restart is serialized by a PID-aware file lock, writes a hot-restart-intent.json (previous PID/version, drain flag, requesting run ID), triggers the service manager restart, polls the local health endpoint until the expected server version appears, and reads back a hot-restart-report.json.",
+      "tags": ["cli", "service-management", "hot-restart", "health-check", "file-locking"],
+      "behavior": [
+        "Probes a local health URL with a 2s timeout and polls it up to 60s until the reported serverVersion matches an expected version after restart.",
+        "Acquires an exclusive hot-restart.lock per instance, stealing the lock only when the owning PID is dead, so concurrent restarts cannot interleave.",
+        "Install prompts for explicit consent before enabling systemd linger so the service can run without an active login session."
+      ]
+    },
+    {
+      "path": "cli/src/commands/worktree.ts",
+      "community": "8",
+      "summary": "Implements worktree commands that create isolated Paperclip instances as git worktrees (init/make/list/env, reseed, repair, ensure-seeded, merge-history). Seeding copies another instance's state by backing up and restoring Postgres (including an embedded Postgres runtime), applying pending migrations, rebounding workspace paths, and quarantining execution — disabling timer heartbeats, resetting running agents, quarantining in-progress issues, unassigning todo/review issues, and stopping workspace/runtime services. merge-history plans and applies issue, comment, attachment, and document changes back from the worktree with dry-run support.",
+      "tags": ["cli", "worktrees", "database-seeding", "execution-quarantine", "merge"],
+      "behavior": [
+        "Names are normalized to a `paperclip-` prefix and validated against [A-Za-z0-9._-]; worktree home and start point resolve from flags or PAPERCLIP_* env vars.",
+        "Seed results report a structured quarantine summary (disabled heartbeats, reset agents, quarantined issues, stopped runtimes) plus validation counts (auth users, companies, issues, migration revision).",
+        "Object storage keys are normalized and path-checked (no `..`, company-prefixed, path-containment assert) before any local or S3 read/write."
+      ]
+    },
+    {
+      "path": "cli/src/config/env.ts",
+      "community": "8",
+      "summary": "Manages the .env file located next to the resolved config path: lazy-loads it once per process (dotenv, no override), filters writes to Paperclip-owned keys matching /^PAPERCLIP_[A-Z0-9_]+$/, and updates the file atomically only when contents change. It also ensures an agent JWT secret exists under PAPERCLIP_AGENT_JWT_SECRET, generating a 32-byte hex value and persisting it on first use.",
+      "tags": ["config", "env-file", "secrets", "jwt", "atomic-writes"],
+      "behavior": [
+        "Reads PAPERCLIP_AGENT_JWT_SECRET from the environment first, falling back to the .env file, and creates a random 32-byte hex secret only when neither exists.",
+        "Writes only touch PAPERCLIP_-prefixed non-empty entries, leaving user-owned variables in the same .env file untouched.",
+        "Each env file is loaded at most once per process via a loadedEnvFiles set, with dotenv configured not to override existing environment variables."
+      ]
+    },
+    {
+      "path": "cli/src/install-store.ts",
+      "community": "79",
+      "summary": "Implements the managed CLI install store under the Paperclip home: versioned payloads from npm or git across latest/canary/pinned channels, an install.json manifest recording the active record plus previous installs for rollback, a managed-store marker, and a PID-aware exclusive lock for install operations. Activation flips a `current` symlink atomically after validating that the payload directory is a real, owned directory inside the installs root; a shim path and shell PATH block markers are also defined here.",
+      "tags": ["installer", "versioning", "atomic-symlink", "locking", "rollback"],
+      "behavior": [
+        "Refuses to operate on install-store paths that are symlinks, not owned by the current user, multi-linked, or missing the exact managed-store marker string.",
+        "Acquires the install lock via write-temp-then-link; steals the lock only when the recorded owner PID is no longer alive, and errors name the stale lock path.",
+        "Manifest writes and current-symlink flips are atomic (temp file + rename), and payloads must resolve inside the installs root before activation."
+      ]
+    },
+    {
+      "path": "cli/src/services/service-manager.ts",
+      "community": "56",
+      "summary": "Defines the ServiceManager interface and its systemd and launchd implementations, which render escaped unit files / plists and drive them through systemctl --user or launchctl. Install writes the definition only if changed (with daemon-reload on change), enables/disables start-on-login, optionally enables linger, and uninstall stops, disables, removes the definition, and resets failed state; status parses LoadState/ActiveState/UnitFileState/MainPID (or launchd equivalents) into a normalized ServiceStatus.",
+      "tags": ["service-manager", "systemd", "launchd", "plist-generation", "process-supervision"],
+      "behavior": [
+        "Systemd values are escaped (backslashes, quotes, $, %) and plist values XML-escaped, with line breaks rejected in systemd values.",
+        "Service definitions are written atomically through temp-file+rename and only into directories owned by the current user, refusing symlinked or foreign-owned targets.",
+        "Both managers keep the service alive by default: Restart=always with 5s delay (systemd) and KeepAlive with RunAtLoad (launchd), with 300s stop timeouts."
+      ]
+    }
+  ]
+}

@@ -1,0 +1,105 @@
+{
+  "features": [
+    {
+      "community": "88",
+      "name": "Plugin UI extension surfaces",
+      "summary": "Third-party plugins can render their own UI inside the host app through a fixed set of extension slots: sidebar entries and panels, project sidebar items, comment annotations and context-menu items, detail tabs, settings pages, widgets, and standalone plugin pages. The kitchen-sink example exercises every slot, feeding them via plugin data providers, actions, streams, and toasts, with feature toggles in per-company plugin config controlling which surfaces appear."
+    },
+    {
+      "community": "110",
+      "name": "Plugin worker runtime with allowlisted workspace commands",
+      "summary": "A plugin worker backend registers data providers, scheduled jobs, webhooks, tools, and runtime launchers against the host, while maintaining scoped plugin state and an in-memory activity log. It can execute curated shell commands inside a project workspace, but only commands present in a safe-command registry and enabled in plugin settings, with path-containment guards, captured stdout/stderr/exit codes, and metrics emitted per run."
+    },
+    {
+      "community": "130",
+      "name": "AI knowledge wiki interface",
+      "summary": "A wiki plugin UI gives teams a browsable knowledge base with spaces, markdown pages and sources, a sticky table of contents, file-tree navigation, and markdown editing, all themed to match the host. It surfaces workspace folder health (missing required files/directories, read/write access), managed host resources (agent, project, routines, skills) with drift detection, and ingestion settings that control which host content feeds the wiki."
+    },
+    {
+      "community": "17",
+      "name": "Automated knowledge distillation with review gates",
+      "summary": "The wiki engine ingests Paperclip issues, comments, and documents into scoped source bundles with character budgets, clipping warnings, dedup namespaces, and cursor windows, then distills them into wiki pages via tracked operations (ingest, query, lint, index, distill, backfill). Policy gates block ingestion for restricted or archived spaces and disabled or empty profiles, company-wide ingestion requires explicit confirmation, and auto-apply of distilled writes is always blocked on authenticated/public deployments in favor of manual review."
+    },
+    {
+      "community": "75",
+      "name": "Execution workspace diff inspection",
+      "summary": "After an agent run, the platform can show exactly what changed in the execution workspace by computing staged, unstaged, and untracked git changes with rename detection, per-file additions/deletions, and patch hunks under explicit byte budgets. Every git call is time-boxed and size-capped, path filters are normalized against traversal, and file reads use realpath containment and O_NOFOLLOW so results stay inside the workspace repository."
+    },
+    {
+      "community": "23",
+      "name": "Remote sandbox lease provisioning",
+      "summary": "Sandbox bridge helpers derive deterministic, DNS-safe sandbox IDs so an execution environment can either reuse a persistent lease (pc-env-&lt;environmentId&gt;) or spin a fresh per-run sandbox (pc-runId-random), tracked via a .paperclip-lease.json sentinel file in the remote working directory. Shared shell-quoting and timeout-detection utilities keep remote sh -c script construction safe and retries reliable."
+    }
+  ],
+  "files": [
+    {
+      "path": "packages/plugins/examples/plugin-kitchen-sink-example/src/ui/index.tsx",
+      "community": "88",
+      "summary": "React UI for the kitchen-sink example plugin that demonstrates every plugin SDK UI extension point (sidebar, project sidebar item, comment annotation, comment context menu, detail tabs, settings pages, widgets, pages). It defines host record types (companies, projects, issues, goals, agents, entities, plugin state) and renders an overview dashboard with counts, recent activity, manifest details, and paginated domain lists. Feature toggles in plugin config control which demo surfaces are visible.",
+      "tags": ["plugin-ui", "react", "sdk-example", "dashboard", "extension-points"],
+      "behavior": [
+        "Registers an overview data view showing counts of companies/projects/issues/goals/agents/entities plus the last job run, webhook, and process result",
+        "Paginates domain record lists client-side with a 'Load 20 more' button driven by a totalCount comparison",
+        "Config flags (showSidebarEntry, showCommentAnnotation, enableWorkspaceDemos, enableProcessDemos) toggle individual UI surfaces on or off"
+      ]
+    },
+    {
+      "path": "packages/plugins/examples/plugin-kitchen-sink-example/src/worker.ts",
+      "community": "110",
+      "summary": "Worker backend for the kitchen-sink example plugin: registers data providers, jobs, webhooks, tools, and runtime launchers via the plugin SDK, keeps a capped in-memory activity log, and executes curated shell commands inside project workspaces. Commands must be both allowlisted in SAFE_COMMANDS and enabled in plugin settings, and every run records exit code, stdout/stderr, timing, and a metric. State is read/written through scoped instance state APIs.",
+      "tags": ["plugin-worker", "sdk-example", "process-execution", "state-scoping", "jobs-and-webhooks"],
+      "behavior": [
+        "runCuratedCommand spawns only commands present in SAFE_COMMANDS and the allowedCommands config, capturing stdout, stderr, exit code, and emitting a process.run metric per run",
+        "ensureInsideWorkspace rejects any relative path whose resolution escapes the workspace root (traversal guard)",
+        "pushRecord maintains a 50-entry capped recent-records ring surfaced through the overview data provider",
+        "List limits from data providers are clamped to the 1..200 range"
+      ]
+    },
+    {
+      "path": "packages/plugins/plugin-llm-wiki/src/ui/app.tsx",
+      "community": "130",
+      "summary": "Full React app for the LLM wiki plugin: wiki spaces, pages, sources, table of contents, markdown editor, and settings, styled with design tokens copied from the host wireframe so it looks native. It tracks managed host resources (agent, project, routines, skills) with default-drift detection, workspace folder health, and event-ingestion settings for issues/comments/documents. Route sidebar expansion state is persisted per-route in localStorage under a versioned key.",
+      "tags": ["plugin-ui", "react", "wiki", "knowledge-base", "markdown"],
+      "behavior": [
+        "Renders wiki routes (wiki, sources, projects, entities, concepts, synthesis) with expanded-state persisted under a versioned localStorage prefix",
+        "Displays folder health with readable/writable flags and missing required directories/files, plus managed-resource drift (changed files or fields vs defaults)",
+        "Ingestion settings gate which host sources (issues, comments, documents) feed the wiki, with a per-source character cap"
+      ]
+    },
+    {
+      "path": "packages/plugins/plugin-llm-wiki/src/wiki/core.ts",
+      "community": "17",
+      "summary": "Core engine of the LLM wiki plugin: models wiki spaces (folder mode, access scope, owner, status), event-ingestion settings with a dedicated dedup namespace, and Paperclip ingestion profiles with scoped sources (active projects, selected projects, root issues, or company-wide requiring board confirmation). Distillation runs as tracked operations (ingest, query, lint, file-as-page, index, distill, backfill) building source bundles with character budgets and warnings. Policy gates deny ingestion for restricted/archived spaces or disabled/empty profiles, and auto-apply of distilled writes is restricted on authenticated/public deployments.",
+      "tags": ["wiki-engine", "ingestion", "distillation", "policy-guards", "plugin-worker"],
+      "behavior": [
+        "Builds source bundles from issues/comments/documents with per-source character caps, clipping flags, sourceHash, and a cursor time window",
+        "company_all ingestion scope is only valid with requiresBoardConfirmation: true, and policy decisions return typed denials (restricted_space, archived_space, profile_disabled, profile_empty)",
+        "Protects AGENTS.md and IDEA.md as wiki control files and forbids auto-apply of distillation writes on authenticated/public deployments (manual review required)",
+        "Fan-out and scope counts are hard-capped (e.g. 25 distillation fan-out, 25 selected projects, 25 root issues, 3 ingestion profile sources)"
+      ]
+    },
+    {
+      "path": "packages/plugins/plugin-workspace-diff/src/workspace-diff.ts",
+      "community": "75",
+      "summary": "Computes the diff of an execution workspace by shelling out to git under strict limits: resolves the workspace cwd to its real repo root, collects staged/unstaged/untracked changes with rename detection, per-file numstat, and patch hunks while respecting byte budgets. All git invocations are time-boxed (10s) and buffer-capped; path filters are normalized and traversal-checked, and file stats use realpath containment plus O_NOFOLLOW to prevent symlink escapes. Oversized, binary, or truncated files are flagged with structured warning codes.",
+      "tags": ["git-diff", "workspace-introspection", "safety-guards", "resource-budgets", "plugin-worker"],
+      "behavior": [
+        "Runs every git command with a 10_000ms timeout and 2MB max buffer, converting failures into typed git_command_failed errors with HTTP 422 status",
+        "Rejects path filters containing NUL bytes, absolute paths, or '..' traversal segments, and refuses workspace paths resolving outside the git repo root",
+        "Opens files with O_NOFOLLOW and validates realpath containment before statting, so symlinked escapes return outside_workspace",
+        "Enforces WORKSPACE_DIFF_CAPS (200 files, 512KB per file, 256KB per patch, 1MB total patches) and marks files oversized/binary/truncated with warning codes"
+      ]
+    },
+    {
+      "path": "packages/plugins/sandbox-providers/cloudflare/bridge-template/src/helpers.ts",
+      "community": "23",
+      "summary": "Small shared helper module for the Cloudflare sandbox bridge template. It normalizes lease ID parts to a DNS-safe charset, builds deterministic sandbox IDs that either reuse an environment lease (pc-env-*) or create a per-run ephemeral sandbox (pc-runId-random), constructs the .paperclip-lease.json sentinel path, detects timeout errors by name/message, and POSIX single-quote-escapes values for safe inclusion in sh -c scripts.",
+      "tags": ["sandbox-bridge", "cloudflare", "lease-management", "shell-quoting", "id-normalization"],
+      "behavior": [
+        "buildLeaseSandboxId returns 'pc-env-<environmentId>' when reuseLease is set, otherwise 'pc-<runId>-<random8>' with an optional caller-supplied random suffix",
+        "normalizeLeaseIdPart lowercases, strips non [a-z0-9-] characters, trims leading/trailing hyphens, and collapses hyphen runs",
+        "shellQuote escapes embedded single quotes using the '\"'\"' pattern so values interpolate safely into sh -c commands"
+      ]
+    }
+  ]
+}

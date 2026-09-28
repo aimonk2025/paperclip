@@ -1,0 +1,87 @@
+{
+  "features": [
+    {
+      "community": "9",
+      "name": "Managed Codex credential and config seeding for sandboxed runs",
+      "summary": "Paperclip maintains a per-company managed Codex home directory, symlinking the live auth.json (so rotating refresh tokens never go stale) and copying static config files, while injecting managed MCP gateway tables into config.toml between explicit markers. An allowlist limits what syncs into sandbox runs to credentials, config, and skills, deliberately excluding host runtime state like session databases and caches. Seeding is strictly confined to the Paperclip-managed company tree, never the user's real ~/.codex."
+    },
+    {
+      "community": "84",
+      "name": "Codex usage and quota monitoring",
+      "summary": "The platform reads Codex/ChatGPT credentials from auth.json (legacy and modern shapes), decodes JWT payloads to surface the account email and ChatGPT plan type, and polls the ChatGPT usage API to report rate-limit window consumption as normalized quota windows (5h/24h/7d labels, used percent, reset times). Failures are classified into auth-refresh failure families so expired credentials are distinguishable from transient provider errors, and all provider calls run under an abort-based timeout."
+    },
+    {
+      "community": "214",
+      "name": "Custom model provider routing for Codex",
+      "summary": "Operators can point Codex agents at OpenAI-compatible model gateways by supplying a provider definition (base URL, env auth key, wire protocol, headers) that Paperclip merges into Codex's config.toml as idempotent managed blocks delimited by marker comments. Secrets in {env:VAR} placeholders are expanded server-side, and conflicting user-defined provider tables are excised so the managed definitions always win without TOML duplicate-key errors. Malformed configuration is rejected with visible diagnostic notes rather than silently dropped."
+    },
+    {
+      "community": "121",
+      "name": "Cursor cloud agent execution",
+      "summary": "Runs agents remotely in Cursor's cloud via the Cursor Agent SDK, reusing a persisted cloud session only when the environment type/name and repo set match the requested run. The adapter injects a curated Paperclip environment into the cloud shell (run ID, wake reason/task/approval context, workspace and repo metadata), strips any config-supplied API key so only the harness-minted run token confers Paperclip identity, and cleanly removes callback wiring when the remote agent cannot reach the local API. Run output streams back as normalized cursor_cloud.* events with an optional instructions-file prefix prepended to the prompt."
+    },
+    {
+      "community": "10",
+      "name": "Local Cursor CLI agent execution with skill injection",
+      "summary": "Executes the Cursor CLI on a local (or remotely targeted) sandbox for each run: it injects the desired Paperclip skills as symlinks into ~/.cursor/skills — repairing broken links and removing maintainer-only skills — then builds the prompt, wake payload, and environment for the agent. Billing mode (API key vs subscription vs OpenRouter) and provider are inferred from env and model name, plan/ask modes are supported, and workspace cwd resolution honors agent-home workspaces with configured-cwd override before falling back to the process cwd."
+    }
+  ],
+  "files": [
+    {
+      "path": "packages/adapters/codex-local/src/server/codex-home.ts",
+      "community": "9",
+      "summary": "Manages a Paperclip-controlled Codex home per company: it seeds copied config files (config.json, config.toml, instructions.md), symlinks auth.json so rotating refresh tokens stay live, and injects a managed MCP-gateways block into config.toml between BEGIN/END PAPERCLIP markers. A strict allowlist (CODEX_SYNC_ALLOWLIST) limits what is staged into sandbox home assets, excluding Codex runtime state like sqlite sessions, plugins, and caches. All writes are confined to the managed company tree; external CODEX_HOME overrides are never seeded or overwritten.",
+      "tags": ["codex-home", "credential-symlinking", "config-seeding", "mcp-gateway-injection", "sandbox-isolation"],
+      "behavior": [
+        "Symlinks auth.json into the managed codex home and replaces stale regular-file copies (which cause refresh_token_reused failures) with symlinks; directories at that path are left for operator inspection",
+        "Injects managed MCP gateway tables into config.toml between '# BEGIN/END PAPERCLIP MANAGED MCP' markers, stripping any previous managed block before rewriting",
+        "Treats a codex home as credentialed only when auth.json is usable (OPENAI_API_KEY present, or tokens containing account_id plus id/access/refresh material), counting dangling auth symlinks as no credentials",
+        "Refuses to seed or overwrite any CODEX_HOME path outside <instanceRoot>/companies/<companyId>/, leaving genuine user-supplied overrides untouched"
+      ]
+    },
+    {
+      "path": "packages/adapters/codex-local/src/server/quota.ts",
+      "community": "84",
+      "summary": "Reads Codex credentials from auth.json in both legacy and modern formats, decodes id/access JWT payloads to extract the account email and ChatGPT plan type, and fetches live usage from the ChatGPT wham API. It normalizes primary/secondary rate-limit windows into QuotaWindow objects with human-readable labels and reset timestamps. All provider requests run under an 8-second abort timeout, error bodies are capped at 4KB, and failures are classified into Codex auth-refresh failure families.",
+      "tags": ["quota-monitoring", "auth-parsing", "jwt-decoding", "rate-limit-windows", "provider-api-client"],
+      "behavior": [
+        "Fetches chatgpt.com/backend-api/wham/usage with Authorization plus ChatGPT-Account-Id headers and maps primary/secondary windows into quota windows labeled 5h/24h/7d with usedPercent clamped to 0-100",
+        "Parses both legacy (accessToken/accountId) and modern (tokens.{access,refresh,id,account_id}) auth.json shapes, returning null on any unreadable or token-less file",
+        "Throws CodexQuotaAuthError with a classified failure family when the usage endpoint reports an auth problem, distinguishing credential expiry from generic provider errors"
+      ]
+    },
+    {
+      "path": "packages/adapters/codex-local/src/server/runtime-config.ts",
+      "community": "214",
+      "summary": "Merges custom OpenAI-compatible model providers (from the PAPERCLIP_CODEX_PROVIDERS JSON env var) into Codex's config.toml as managed blocks delimited by marker comments — a root block for model_provider and a tables block for [model_providers.*]. It hand-emits TOML for a constrained value space, expands {env:VAR} placeholders server-side so gateway secrets bake in reliably, and strips conflicting user definitions so managed providers win. Misconfiguration (invalid JSON, no usable entries, dangling model_provider selector) is rejected with visible notes instead of silent drops.",
+      "tags": ["toml-generation", "provider-configuration", "env-placeholder-expansion", "config-merge", "misconfiguration-diagnostics"],
+      "behavior": [
+        "Emits provider tables and the root model_provider key between '>>> paperclip codex providers ... managed, do not edit' marker comments, and strips prior managed blocks on every rewrite for idempotency",
+        "Removes pre-existing [model_providers.<name>] tables (including subtables) and root model_provider keys that conflict with managed definitions, avoiding duplicate-key TOML parse errors",
+        "Rejects the whole provider block with a diagnosable note when the JSON is invalid, contains no usable provider entries, or model_provider references a filtered-out provider"
+      ]
+    },
+    {
+      "path": "packages/adapters/cursor-cloud/src/server/execute.ts",
+      "community": "121",
+      "summary": "Executes agent runs in Cursor's cloud through the Cursor Agent SDK, streaming normalized cursor_cloud.init/status/message/result events back to the harness. It builds a wake environment carrying run identity, task/issue and approval context, and workspace/repo metadata, and it reuses a persisted cloud session only when env type/name and the repo set match. Security-sensitive env handling strips config-supplied PAPERCLIP_API_KEY and removes callback wiring entirely when the remote agent has no usable token.",
+      "tags": ["cursor-cloud", "remote-agent-execution", "environment-injection", "session-reuse", "event-streaming"],
+      "behavior": [
+        "Deletes PAPERCLIP_API_KEY from config env so only the harness-minted run token is accepted, and drops PAPERCLIP_API_URL/PAPERCLIP_API_BRIDGE_MODE when no usable key exists so remote Paperclip tool calls degrade to a clean no-op",
+        "Reuses a stored Cursor cloud session only when envType (cloud/pool/machine), envName, and the ordered repo list (url, startingRef, prUrl) all match the requested run",
+        "Prepends an optional instructions file to the prompt with a directive to resolve relative references from its directory, logging a warning and continuing without it if unreadable"
+      ]
+    },
+    {
+      "path": "packages/adapters/cursor-local/src/server/execute.ts",
+      "community": "10",
+      "summary": "Local Cursor CLI adapter executor: resolves the execution target (local vs remote/sandbox), injects desired Paperclip skills into ~/.cursor/skills as symlinks, infers billing type and provider from env and model name, and builds the prompt, mode (plan/ask), and wake environment for the run. Workspace cwd resolution prefers the Paperclip workspace cwd, honors a configured cwd override for agent-home workspaces, and falls back to the process cwd. It delegates command resolution, runtime preparation, bridge startup, and process spawning to the shared adapter execution-target layer.",
+      "tags": ["cursor-local", "cli-execution", "skills-injection", "execution-target", "prompt-and-env-building"],
+      "behavior": [
+        "Injects desired skills as symlinks into ~/.cursor/skills, logging injected/repaired entries and removing maintainer-only skill symlinks with a notice per removed skill",
+        "Infers billing as 'api' when CURSOR_API_KEY or OPENAI_API_KEY is set (else 'subscription'), overrides to 'openrouter' when an OpenAI-compatible biller is detected, and derives provider from the model name (vendor prefix, claude/sonnet, gpt/o prefixes)",
+        "Resolves cwd as workspace cwd (unless agent_home source with a configured cwd override) then configured cwd then process.cwd(), ensures it exists as an absolute directory, and skips local skill injection when the execution target is remote"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,1 @@
+{"nodes": [{"id": "$graphify-root$_packages_db_src_migrations_0112_rename_skill_create_permission_key_sql", "label": "0112_rename_skill_create_permission_key.sql", "file_type": "code", "source_file": "packages/db/src/migrations/0112_rename_skill_create_permission_key.sql", "source_location": null}], "edges": []}

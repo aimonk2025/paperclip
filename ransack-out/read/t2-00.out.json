@@ -1,0 +1,92 @@
+{
+  "features": [
+    {
+      "community": "195",
+      "name": "Browser-approved CLI login",
+      "summary": "The CLI authenticates against the platform by creating a server-side auth challenge, opening an approval page in the user's browser (or printing the URL), and polling until a human approves, cancels, or the challenge expires. The resulting board API token is cached in a 0600-permission credential store keyed per server instance, with support for board-level vs instance-admin access scopes, user-id capture, and token revocation."
+    },
+    {
+      "community": "89",
+      "name": "Multi-profile CLI context",
+      "summary": "The CLI maintains a .paperclip/context.json file holding named profiles (API base, company, board/agent persona, agent identity, API-key env var, token metadata), discovered by walking ancestor directories from the current working directory before falling back to the home default. Users switch identities or agent personas per directory tree, and the module defensively normalizes and persists (0600) the context on every update."
+    },
+    {
+      "community": "6",
+      "name": "Company portability and skill library management",
+      "summary": "The CLI's company command surface exports a company's settings, agents, projects, tasks, and skills into portable zip bundles and previews/applies imports (to a new or existing company) with an interactive selection catalog and collision handling (rename/skip/replace). Alongside it, the skills commands browse/search/inspect an app-shipped catalog, install catalog skills or import from local/GitHub/skills.sh/URL sources, create managed skills from markdown, and print skill files — all sharing common flag, credential-resolution, and output plumbing that can auto-recover auth via browser login."
+    },
+    {
+      "community": "152",
+      "name": "Deterministic portable archive packaging",
+      "summary": "Packages exported company content into dependency-free, STORE-only zip archives in memory for the chunked import-transfer path, rejecting archives that would need zip64. Entries are written in sorted order with zeroed timestamps so identical content always produces identical bytes, enabling resumable content-addressed transfers, and the zip reader is shared with the server so uploaded archives unpack into the same bundle format as inline imports."
+    }
+  ],
+  "files": [
+    {
+      "path": "cli/src/client/board-auth.ts",
+      "community": "195",
+      "summary": "Implements browser-approved CLI authentication: creates an auth challenge on the server, opens or prints an approval URL, polls the challenge status until approved/cancelled/expired, and stores the returned board API token. Also manages a per-API-base credential store (JSON file written with 0o600 permissions) with read/write/remove plus server-side token revocation.",
+      "tags": ["cli-auth", "challenge-polling", "credential-store", "browser-login", "token-management"],
+      "behavior": [
+        "Creates a challenge via POST /api/cli-auth/challenges, opens the approval URL with a platform-specific opener (open/cmd start/xdg-open, skippable via PAPERCLIP_NO_BROWSER), then polls pollPath at the server-suggested interval until status is approved, cancelled, or expired.",
+        "On approval, calls /api/cli-auth/me with the board API token and persists the token plus user id into the credential store (path overridable via PAPERCLIP_AUTH_STORE, written with mode 0o600).",
+        "Exposes setStoredBoardCredential/getStoredBoardCredential/removeStoredBoardCredential keyed by trailing-slash-normalized API base, and revokeStoredBoardCredential that POSTs /api/cli-auth/revoke-current."
+      ]
+    },
+    {
+      "path": "cli/src/client/context.ts",
+      "community": "89",
+      "summary": "Manages the CLI's multi-profile context file (.paperclip/context.json) where each profile stores apiBase, companyId, persona (board|agent), agent identity, and API-key/token metadata. Locates the context via explicit override, PAPERCLIP_CONTEXT env var, ancestor-directory search, or the default home path, and provides defensive normalization plus profile upsert, current-profile switching, and resolution.",
+      "tags": ["config", "profiles", "context-file", "cli-state", "normalization"],
+      "behavior": [
+        "Walks parent directories from process.cwd() looking for .paperclip/context.json before falling back to the default home path.",
+        "Normalizes any malformed or missing JSON into a version-2 context with a single empty 'default' profile, stripping blank/invalid string fields and rejecting non-board/agent personas.",
+        "Writes the context with mode 0o600; upsertProfile merges patches field-by-field and deletes fields whose patch value is an empty string, and setCurrentProfile creates missing profiles on demand."
+      ]
+    },
+    {
+      "path": "cli/src/commands/client/common.ts",
+      "community": "6",
+      "summary": "Shared plumbing for client-facing CLI commands: defines the common flag set (--api-base, --api-key, --run-id, --company-id, --json, --config, --data-dir, --context, --profile) and resolveCommandContext, which builds a PaperclipApiClient with credentials resolved from flag, env, profile env var, or stored board credential. Also provides API path building, attachment content-type inference kept in sync with the server allowlist, and human-readable/JSON output helpers.",
+      "tags": ["cli", "command-setup", "auth-resolution", "http-client", "output-formatting"],
+      "behavior": [
+        "Resolves the API key with precedence --api-key > PAPERCLIP_API_KEY > profile apiKeyEnvVarName env var > stored board credential, and reports the chosen authSource (explicit/env/profile_env/stored_board/none).",
+        "Attaches a recoverAuth callback that triggers interactive browser-based board login on 401 or 403 'Board access required'/'Instance admin required' errors, but only when stdin and stdout are TTYs and no explicit API key was given.",
+        "Sources the X-Paperclip-Run-Id header (required for agent-authenticated mutations like checkout/release/interactions) from --run-id or PAPERCLIP_RUN_ID, and infers the API base from --api-base > PAPERCLIP_API_URL > profile > config server host/port (defaulting to http://localhost:3100)."
+      ]
+    },
+    {
+      "path": "cli/src/commands/client/company.ts",
+      "community": "6",
+      "summary": "Company-level CLI commands for data portability: export a company's settings, agents, projects, tasks, and skills into a portable bundle (zip-based), preview and apply imports into a new or existing company with collision handling (rename/skip/replace), and interactive selection of what to import. Also covers company deletion with confirmation modes and feedback-trace export.",
+      "tags": ["company", "portability", "export", "import", "cli-commands"],
+      "behavior": [
+        "Builds an interactive import selection catalog from the server's preview manifest, grouping company files (manifest, README, logo), projects, issues/tasks, agents, and skills, with a preview sample limit of 6.",
+        "Parses --include CSV over company,agents,projects,issues/tasks,skills with validation errors when nothing matches; default export includes company+agents while default import includes everything.",
+        "Filters portable files to markdown, .paperclip.yaml/.yml, known binary content types, and blob-store paths, and collects entity files by including everything under the entity's directory."
+      ]
+    },
+    {
+      "path": "cli/src/commands/client/skills.ts",
+      "community": "6",
+      "summary": "CLI subcommands for the company skill library: browse, search, and inspect the app-shipped catalog without installing; install catalog skills into a company (without attaching to agents); import skills from a local path, GitHub, skills.sh, or URL; create managed skills from name/slug/description/markdown (with stdin support); and list, show, and print skill files. All commands share the common context resolution and JSON output switch.",
+      "tags": ["skills", "catalog", "cli-commands", "company-library", "import"],
+      "behavior": [
+        "Registers a `skills` commander group (description 'Company and agent skill operations') with browse/search/inspect/install/list/show/file/import/create subcommands, each supporting --json output.",
+        "install POSTs to /api/companies/:id/skills/install-catalog with an optional --as slug override and --force to replace a same-key catalog-managed skill; import POSTs the raw source string to /api/companies/:id/skills/import and prints imported count plus warnings.",
+        "`file` prints a skill file's raw content to stdout (default path SKILL.md), appending a newline when the content lacks one."
+      ]
+    },
+    {
+      "path": "cli/src/commands/client/zip.ts",
+      "community": "152",
+      "summary": "Re-exports the shared portability zip reader from @paperclipai/shared (used identically by the server) and adds a dependency-free STORE-only zip writer that packages a local folder in memory for the chunked import-transfer path. The writer emits deterministic bytes so identical content always produces the identical archive a resumable content-addressed transfer expects.",
+      "tags": ["zip", "packaging", "portability", "determinism", "binary-codec"],
+      "behavior": [
+        "Builds classic (non-zip64) zip archives entirely in memory, throwing when entry count exceeds 0xffff or any offset exceeds 0xffffffff.",
+        "Writes entries in sorted path order under a single rootPath/ directory with zeroed timestamps, making the output byte-deterministic for identical input content.",
+        "Computes per-entry CRC32 using the standard 0xedb88320 polynomial and writes local + central directory headers plus the end-of-central-directory record by hand."
+      ]
+    }
+  ]
+}

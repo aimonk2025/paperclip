@@ -1,0 +1,99 @@
+{
+  "features": [
+    {
+      "community": "4",
+      "name": "Live Cursor transcript capture",
+      "summary": "Streams Cursor agent CLI stdout line-by-line and turns it into structured run transcripts (user/assistant messages, thinking deltas, tool calls and results, init and token-usage events). Shell tool input is compacted to just the command and shell results are rendered as exit code plus truncated stdout/stderr for readable run logs. Non-JSON lines still surface as raw stdout entries so nothing from the session is lost."
+    },
+    {
+      "community": "10",
+      "name": "Sandboxed Gemini agent execution with CLI fallback",
+      "summary": "Runs Gemini agents through an ACP engine inside remote managed-home sandboxes: it stages the prepared skills directory into the sandbox's $HOME/.gemini/skills, pre-selects api-key auth only when the credential actually reaches the sandbox, and syncs workspace changes back to the host on teardown. When ACP is unavailable by default it falls back to the Gemini CLI lane with an explanatory message, and never writes key bytes into the sandbox. A small text helper rounds out the adapter's server utilities."
+    },
+    {
+      "community": "105",
+      "name": "Agent task bridge CLI",
+      "summary": "Ships a self-contained CLI skill that lets a Hermes agent operate on Paperclip work items: list-assigned pulls its inbox, create-task files new issues with priority/work-mode/parent/goal/project links, and comment/update-status mutate issues with optional resume or reopen. It authenticates with a task_bridge-scoped API key, stamps mutations with X-Paperclip-Run-Id, validates enums, and emits JSON summaries that never include credentials."
+    },
+    {
+      "community": "47",
+      "name": "Remote Hermes gateway execution with session resume",
+      "summary": "Executes Hermes agents through a remote HTTP gateway, streaming SSE events until a terminal status (completed/failed/error/cancelled/stopped/interrupted) resolves the run. Stable session keys (per issue, agent, or run) resume the same remote Hermes conversation across runs, switching to a compact task brief once the conversation already received it. Every logged string is redacted — bearer tokens, session keys, sensitive keys, and known secret values — and non-critical headers are dropped before requests go out."
+    },
+    {
+      "community": "49",
+      "name": "Local Hermes CLI run execution",
+      "summary": "Runs Hermes agents by spawning `hermes chat -q -Q` as a child process with model/provider/resume/worktree flags, feeding it a rendered prompt that carries Paperclip runtime identity, wake prompt, session handoff, and the authoritative task markdown. It parses session ID, token usage, and cost out of quiet-mode output via regexes, and strips tool/system noise lines from the final response before returning structured results."
+    }
+  ],
+  "files": [
+    {
+      "path": "packages/adapters/cursor-local/src/ui/parse-stdout.ts",
+      "community": "4",
+      "summary": "Parses each Cursor CLI stdout line (after stream normalization) into typed TranscriptEntry records covering init, system, user, assistant, thinking, tool_call, tool_result, and result-with-usage events. Shell tool results are specially formatted for the run log as exit code plus stdout/stderr truncated at 2000 chars, and shell tool input is compacted to just the command. All parsing is defensive: unknown shapes degrade to raw stdout or system entries rather than throwing.",
+      "tags": ["stdout-parsing", "transcript", "tool-call-events", "defensive-parsing", "log-formatting"],
+      "behavior": [
+        "Normalizes every stdout line to zero or more typed transcript entries (init/system/assistant/user/thinking/tool_call/tool_result/result/stdout) instead of logging raw text",
+        "Truncates shell tool stdout and stderr to 2000 characters with an explicit '(truncated)' marker in run-log output",
+        "Extracts input/output/cached token usage from terminal result events and derives session/model identity from system init events"
+      ]
+    },
+    {
+      "path": "packages/adapters/gemini-local/src/server/acp.ts",
+      "community": "10",
+      "summary": "Implements the Gemini adapter's ACP execution lane: resolves engine selection (explicit acp/cli or automatic ACP-to-CLI fallback with a formatted reason), and builds the ACP engine config with agent command, state dir, mode, permission mode, and warm-handle defaults. For remote sandbox runs it prepares a managed home — remaps HOME to the per-run runtime root, ships the prepared Gemini skills dir and copies it into $HOME/.gemini/skills in-sandbox, and pre-selects api-key auth in settings.json only when the key is present in the run env that reaches the sandbox. Teardown restores the sandbox workspace to the host fail-open, and key bytes are never written anywhere.",
+      "tags": ["acp-engine", "gemini-adapter", "remote-sandbox", "managed-home", "skills-provisioning", "engine-fallback"],
+      "behavior": [
+        "Falls back from the default ACP engine to the Gemini CLI lane with a '[paperclip] Gemini ACP default unavailable' message unless engine=acp or engine=cli is set explicitly",
+        "Ships the host skills directory into the remote sandbox and cp -a's it to $HOME/.gemini/skills under the managed per-run HOME so the CLI discovers it",
+        "Writes the api-key auth selector into sandbox settings.json only when GEMINI_API_KEY/GOOGLE_API_KEY is present in the resolved run env, never copying key bytes",
+        "Registers a teardown hook that syncs the sandbox workspace back to the host on every exit path, logging and never failing the run on restore errors"
+      ]
+    },
+    {
+      "path": "packages/adapters/gemini-local/src/server/utils.ts",
+      "community": "10",
+      "summary": "A single tiny helper that returns the first non-empty (trimmed) line of a text block, or an empty string if all lines are blank.",
+      "tags": ["string-utils", "helper"],
+      "behavior": [
+        "Splits text on CRLF/LF newlines and returns the first line that is non-empty after trimming, defaulting to empty string"
+      ]
+    },
+    {
+      "path": "packages/adapters/hermes/skills/paperclip-task-bridge/paperclip-task.mjs",
+      "community": "105",
+      "summary": "A dependency-free Node CLI that bridges Hermes agents to Paperclip issue management: list-assigned (inbox-lite filtered by status and capped 1-100), create-task (with title, description from text/file/stdin, assignee self/UUID/unassigned, parent/goal/project links, priority, work-mode, status), comment (with --resume/--reopen), and update-status. It authenticates with a task_bridge-scoped bridge key, resolves agent identity via /agents/me, sends X-Paperclip-Run-Id on mutations, validates all enums, and prints JSON summaries that never include credentials.",
+      "tags": ["cli", "task-bridge", "rest-api", "issue-management", "agent-skill"],
+      "behavior": [
+        "Authenticates every request with a Bearer task-bridge API key from PAPERCLIP_BRIDGE_API_KEY/PAPERCLIP_API_KEY and rejects missing config with UsageError",
+        "Stamps mutating requests with X-Paperclip-Run-Id from PAPERCLIP_RUN_ID and normalizes the base URL to end in /api",
+        "Validates status/priority/work-mode against fixed enum sets and enforces --limit as an integer from 1 to 100",
+        "Outputs JSON summaries of issues and comments (ids, titles, statuses, authors, timestamps) that omit all credential material"
+      ]
+    },
+    {
+      "path": "packages/adapters/hermes/src/gateway/server/execute.ts",
+      "community": "47",
+      "summary": "Gateway-server execution lane for Hermes: normalizes the base URL (special-casing the Hermes dashboard port/path), computes stable session keys under issue/agent/run/none strategies so the same remote Hermes conversation resumes across runs, and assembles the run input from wake prompt, session handoff, and task markdown. It drives the run over HTTP with SSE frames until a terminal status, and rigorously redacts logged output — bearer tokens, Hermes/Paperclip session-key patterns, sensitive keys, and exact known secret values — while dropping non-critical request headers.",
+      "tags": ["gateway", "sse-streaming", "session-resume", "secret-redaction", "http-execution", "prompt-assembly"],
+      "behavior": [
+        "Derives stable session keys like 'paperclip:company:<id>:agent:<id>:issue:<id>' from a configurable strategy so remote conversations resume across runs",
+        "Redacts bearer tokens, X-Hermes-Session-Key values, paperclip session-key patterns, sensitive-named keys, and exact secret strings from every logged value, truncating long strings",
+        "Treats completed/failed/error/cancelled/canceled/stopped/interrupted as terminal run statuses, distinguishing failure from cancellation sets",
+        "Filters extra request headers to exclude critical ones (authorization, content-type, accept, idempotency-key, x-hermes-session-key) and sends Idempotency-Key equal to the run id"
+      ]
+    },
+    {
+      "path": "packages/adapters/hermes/src/server/execute.ts",
+      "community": "49",
+      "summary": "Local execution logic for the Hermes adapter: spawns `hermes chat -q \"...\" -Q` as a child process with model, provider, toolsets, resume, worktree, and --yolo flags, and builds the prompt from a template carrying Paperclip runtime identity, API guidance with a safe multiline curl/jq update pattern, wake prompt, session handoff, and task markdown. It parses session ID, token usage, and cost from quiet-mode output using regexes and cleans tool/system noise lines from the final response.",
+      "tags": ["child-process", "prompt-template", "output-parsing", "cli-adapter", "usage-extraction"],
+      "behavior": [
+        "Resolves the hermes command from config and spawns it with documented CLI flags including -r resume by session and --yolo to bypass TTY approval prompts",
+        "Renders a prompt template with conditional {{#section}} blocks and joins wake prompt, session handoff, task markdown, and the rendered body into the final query",
+        "Extracts session id, input/output token usage, and dollar cost from quiet-mode output via regexes, including a legacy session-id format",
+        "Strips [tool]/[hermes]/[paperclip] lines, timestamps, emoji status markers, and 'session_id:' lines from the raw response before returning it"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,1 @@
+{"nodes": [{"id": "$graphify-root$_packages_db_src_migrations_0188_status_card_generation_issue_index_sql", "label": "0188_status_card_generation_issue_index.sql", "file_type": "code", "source_file": "packages/db/src/migrations/0188_status_card_generation_issue_index.sql", "source_location": null}], "edges": []}

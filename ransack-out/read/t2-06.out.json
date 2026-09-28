@@ -1,0 +1,86 @@
+{
+  "features": [
+    {
+      "community": "32",
+      "name": "Remote agent gateway execution",
+      "summary": "Wakes and drives remote OpenClaw agents over an authenticated WebSocket gateway (protocol v4 req/res/event frames), forwarding run, issue, and approval context so the remote agent resumes the right task. Session keying (per-issue or per-run, agent-prefixed) isolates gateway conversations, while ED25519 device identity and regex-driven log redaction keep the channel and its audit trail safe."
+    },
+    {
+      "community": "184",
+      "name": "Gateway connectivity diagnostics",
+      "summary": "Self-tests the gateway adapter configuration before runs run: validates the WebSocket URL shape, warns on plaintext ws:// to non-loopback hosts, and resolves credentials from config, headers, or environment. A live probe performs the real connect challenge handshake and reports structured ok / challenge-only / failed results with actionable hints."
+    },
+    {
+      "community": "69",
+      "name": "Automated database backup and restore",
+      "summary": "Produces gzipped SQL backups of the platform's Postgres database via pg_dump or a built-in JavaScript dump engine, supporting table exclusion and nullification of sensitive columns. Enforces tiered retention (keep all dailies, newest per ISO week, newest per month) and restores backups with breakpoint-aware statement replay."
+    },
+    {
+      "community": "64",
+      "name": "Migration safety gating",
+      "summary": "Statically analyzes every database migration before it ships and flags dangerous operations on known-large tables: DO-loop mutations, batched LIMIT mutations without a support index, full-table mutations without selective WHERE, and CREATE INDEX missing CONCURRENTLY. New findings are separated from a stored baseline by content hash, and per-statement suppressions require a written reason."
+    },
+    {
+      "community": "37",
+      "name": "Managed database migrations",
+      "summary": "Owns the platform's Postgres connection, wrapping postgres.js + Drizzle with the full schema and tuning pool size, prepared statements, and timeouts from environment variables for different deployment topologies (pooled endpoints, hosted DBs). Applies journal-ordered migrations transactionally, bootstrapping the drizzle migrations bookkeeping table, and reports up-to-date vs pending state with reason codes."
+    }
+  ],
+  "files": [
+    {
+      "path": "packages/adapters/openclaw-gateway/src/server/execute.ts",
+      "community": "32",
+      "summary": "Implements the OpenClaw gateway adapter's execution path: a WebSocket client speaking a versioned (protocol 4) req/res/event frame protocol that wakes a remote agent with run/issue/approval context and collects execution results. It derives per-agent session keys via fixed/issue/run strategies, carries ED25519 device identity for pairing, and scrubs secrets from logs with sha256-fingerprinted redaction.",
+      "tags": ["websocket-gateway", "adapter-execution", "agent-wake", "session-keying", "secret-redaction"],
+      "behavior": [
+        "Opens a WebSocket to the configured gateway URL, completes a connect.challenge handshake at protocol version 4 with role/scopes/auth, and correlates req/res frames by id under per-request timeouts",
+        "Builds a WakePayload carrying runId, agentId, companyId, issueId, wakeReason, and approval id/status so the remote agent resumes the correct task",
+        "Redacts values under auth/token/secret/password/api-key-like keys to `[redacted len=N sha256=prefix]` and truncates oversized log payloads"
+      ]
+    },
+    {
+      "path": "packages/adapters/openclaw-gateway/src/server/test.ts",
+      "community": "184",
+      "summary": "Environment self-test for the OpenClaw gateway adapter that validates adapter config before use: checks the WebSocket URL format and protocol, warns on plaintext ws:// to non-loopback hosts, resolves credentials from config/headers, and live-probes the gateway with a real connect handshake. Emits structured pass/warn/fail checks with hints.",
+      "tags": ["environment-diagnostics", "websocket-probe", "adapter-config-validation", "health-check"],
+      "behavior": [
+        "Validates that adapterConfig.url parses and uses ws:// or wss://, and warns when plaintext ws:// targets a non-loopback host",
+        "Runs a live probeGateway() connect handshake (challenge -> connect with role/scopes/token, 3s timeout) and classifies the outcome as ok, challenge_only, or failed",
+        "Aggregates checks into a single status where any error fails the test and any warning downgrades it to warn"
+      ]
+    },
+    {
+      "path": "packages/db/src/backup-lib.ts",
+      "community": "69",
+      "summary": "Database backup/restore engine for Postgres: writes gzipped SQL dumps via pg_dump or a pure-JavaScript fallback that cursors rows and emits INSERTs, honoring table exclusions and column nullification for sensitive data. Applies tiered retention pruning (all dailies, newest per ISO week, newest per month) and restores with breakpoint-aware statement splitting.",
+      "tags": ["database-backup", "retention-policy", "pg_dump", "restore", "sensitive-data-nullification"],
+      "behavior": [
+        "Dumps the database to timestamped .sql.gz files, selecting between pg_dump and a JavaScript engine, with a 1MB write buffer and 100-row cursor fetching",
+        "Prunes backups on daily/weekly/monthly tiers: keeps everything within dailyDays, the newest per ISO week within weeklyWeeks, the newest per month within monthlyMonths, deletes the rest",
+        "Supports excludeTables and nullifyColumns so sensitive columns are written as NULL in backups; restore splits statements on a dedicated paperclip breakpoint marker"
+      ]
+    },
+    {
+      "path": "packages/db/src/check-migration-safety.ts",
+      "community": "64",
+      "summary": "Static migration-safety linter that parses migration SQL and flags dangerous operations on known-large tables: DO-loop mutations without a same-migration index, batched LIMIT mutations lacking a support index, full-table mutations without selective WHERE, and CREATE INDEX missing CONCURRENTLY. Findings carry sha256-derived ids, diff against a stored baseline, and can be suppressed per statement with a reasoned ignore comment.",
+      "tags": ["migration-safety", "sql-linting", "large-table-protection", "static-analysis", "baseline-diffing"],
+      "behavior": [
+        "Splits migration SQL into statements correctly handling dollar-quoted blocks, single/double-quoted literals and identifiers, and line/block comments before rule evaluation",
+        "Emits severity-tagged findings keyed by sha256 ids and splits them into new vs baseline findings, reporting stale baseline ids",
+        "Honors `-- paperclip:migration-safety-ignore <rule|all>: <reason>` comments to suppress specific rules for a statement, and skips expression index columns when judging index coverage"
+      ]
+    },
+    {
+      "path": "packages/db/src/client.ts",
+      "community": "37",
+      "summary": "Core database client module: wraps postgres.js + Drizzle with the full schema, tunes pool size, prepared-statement mode, and idle/connect timeouts from DATABASE_* env vars, and manages migration state. Orders migrations by the Drizzle journal, ensures the drizzle.__drizzle_migrations bookkeeping table exists, applies pending migrations transactionally, and reports upToDate vs needsMigrations with reason codes.",
+      "tags": ["database-client", "drizzle-orm", "migrations", "connection-pooling", "postgres"],
+      "behavior": [
+        "Creates a Drizzle-over-postgres.js client whose prepare/max/idle_timeout/connect_timeout come from DATABASE_PREPARED_STATEMENTS, DATABASE_POOL_MAX, DATABASE_IDLE_TIMEOUT_SECONDS, and DATABASE_CONNECT_TIMEOUT_SECONDS env vars",
+        "Compares applied migrations recorded in drizzle.__drizzle_migrations against journal-ordered migration files and reports pendingMigrations with a reason such as pending-migrations or no-migration-journal-empty-db",
+        "Applies migrations inside BEGIN/COMMIT with rollback on failure, creating the drizzle schema and migrations table if absent, and rejects unsafe SQL identifiers via a strict allowlist pattern"
+      ]
+    }
+  ]
+}

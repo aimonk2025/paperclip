@@ -1,0 +1,90 @@
+{
+  "features": [
+    {
+      "community": "9",
+      "name": "Agent runtime orchestration with warm sandbox sessions",
+      "summary": "Drives external agent CLIs (Codex, Claude, Gemini) turn-by-turn through an ACP runtime, staging the workspace and a per-adapter managed home into a remote sandbox and keeping that staged runtime warm across runs so a compatible resume skips re-shipping. Credentials are scoped by a session fingerprint (company/agent/task/config hash) so one session can never read another's staged home, and teardown copies auth back per-run while cleanup only fires on eviction or failure. Startup, turn, and settlement phases are instrumented with timing spans and a resource ledger."
+    },
+    {
+      "community": "23",
+      "name": "Pluggable execution targets (local, SSH, sandbox) with staged workspaces",
+      "summary": "Abstracts where an adapter run executes behind one target type — local, SSH remote, or provider sandbox — and prepares each runtime by staging the workspace plus additional referenced projects, recording per-project staging failures, and exposing a restoreWorkspace callback. Sandbox targets carry a read-only effective-capability snapshot (reusable leases, native sync in/out, persistent process sessions, incremental output) resolved from provider declaration ∩ verified worker methods ∩ config narrowing, and a 4-hour wall-clock backstop. A callback bridge plus opt-in run-log tail streaming delivers the agent CLI's stdout/stderr and issue-comment postings incrementally instead of batch-at-end."
+    },
+    {
+      "community": "222",
+      "name": "Local process sandboxing with filesystem and network policies",
+      "summary": "Constrains a locally spawned agent process to a workspace-scoped filesystem (read-only system paths, managed/extra paths with ro/rw access, path aliases, outbound restore paths, optional separate home) and to a network policy of deny or exact-hostname allowlist. The allowlist is enforced by a built-in HTTP/CONNECT proxy on a Linux-safe Unix socket that returns 403 for denied targets, requires CONNECT for HTTPS, and rejects wildcards. Trusted URLs are folded into the same rule set as explicit allowlist entries."
+    },
+    {
+      "community": "4",
+      "name": "Hardened agent process runner and execution-contract prompts",
+      "summary": "Provides the shared child-process runner used across transports: process-group signaling with SIGTERM-to-SIGKILL escalation gated on true liveness, timeout/grace handling, capped output capture, terminal-result cleanup evidence for unmanaged background tasks, and redaction of sensitive env values. It reserves the PAPERCLIP_* env namespace (PAPERCLIP_API_KEY is never accepted from adapter/user config — only the harness-minted run token), resolves per-instance roots under ~/.paperclip/instances/<id>, and materializes skills with sentinel/lock files. It also authors the default agent prompt template — the execution contract covering heartbeat dispositions, issue interactions, plan-approval confirmations, and the watchdog mandate."
+    },
+    {
+      "community": "21",
+      "name": "SSH remote execution transport with workspace sync",
+      "summary": "Turns an SSH connection spec (host, port, user, private key, known hosts, strict host-key checking) into a command-managed runtime runner that builds shell-quoted remote commands with env exports, streams stdout/stderr back through onLog, and enforces timeouts and maxBuffer with SIGTERM plus 5-second SIGKILL escalation. Remote workspace state is synchronized using unrelated-history graft commits and a baseline-aware directory merge on restore. A local OpenSSH sshd lab fixture supports integration testing of the transport."
+    }
+  ],
+  "files": [
+    {
+      "path": "packages/adapter-utils/src/acpx-engine/execute.ts",
+      "community": "9",
+      "summary": "Core executor of the ACP engine: builds and runs agent CLI sessions through createAcpRuntime, wiring host and sandbox run sites, startup timing spans, a run-resource ledger, turn and settlement sequences. For remote runner-backed sessions it stages the workspace and a per-adapter managed home into the sandbox and caches the staged runtime per session fingerprint so compatible resumes reuse it instead of re-staging. Routes child stderr to a log file and live console while filtering benign nes/close noise, and models billing identity (provider/biller/billingType) for adapter usage.",
+      "tags": ["agent-runtime", "acp", "sandbox-staging", "session-warm-cache", "stderr-routing"],
+      "behavior": [
+        "Keeps a StagedRuntimeCacheEntry keyed by sessionKey (paperclip:companyId:agentId:taskKey:fingerprint); a different agent/task/config hashes to a different key and stages its own home, so sessions never share staged credentials.",
+        "Separates per-run teardown (auth copy-back via restoreWorkspace, reading the live sandbox credential) from one-time dispose (host-side staged-resource cleanup) fired only when the entry is dropped by failure, incompatible re-stage, or idle eviction.",
+        "Re-applies the recorded envDelta (e.g. CODEX_HOME repointed into the sandbox) verbatim on reused runs so the spawned agent still receives in-sandbox home paths without re-invoking the adapter seam.",
+        "Buffers partial stderr lines and only writes complete, filtered lines to process.stderr, dropping lines matching the benign nes/close -32601 pattern."
+      ]
+    },
+    {
+      "path": "packages/adapter-utils/src/execution-target.ts",
+      "community": "23",
+      "summary": "Defines the execution-target model — local, SSH remote, and sandbox transports — plus workspace realization (copy vs in_place, path aliases, outbound restore paths) and prepares a target runtime that stages the workspace, additional referenced projects, and runtime assets. Sandbox targets carry a readonly EffectiveSandboxCapabilities snapshot and optional incremental run-log streaming; a 4-hour DEFAULT_REMOTE_SANDBOX_ADAPTER_TIMEOUT_SEC backstops hung runs. Also exposes the sandbox callback bridge and a postedIssueCommentLogMarker that extracts comment ids from successful POST /api/issues/{id}/comments calls.",
+      "tags": ["execution-target", "sandbox-capabilities", "workspace-staging", "log-streaming", "callback-bridge"],
+      "behavior": [
+        "parseEffectiveSandboxCapabilities reads every missing or non-boolean field as false, so a round-tripped target never grants a capability the snapshot did not carry.",
+        "Sandbox-backed runs stream the agent CLI's stdout/stderr incrementally through a per-attempt runLogTail handle (streamRunLogs defaults on), suppressing the batched provider onLog path.",
+        "Additional referenced projects stage independently: successes are recorded in additionalSourceDirs keyed by projectId and failures in additionalSourceFailures with messages, without failing the whole target.",
+        "postedIssueCommentLogMarker returns 'comment id: <id>' only for 2xx POSTs matching /api/issues/{id}/comments with a non-empty string id, else null."
+      ]
+    },
+    {
+      "path": "packages/adapter-utils/src/local-process-sandbox.ts",
+      "community": "222",
+      "summary": "Builds a sandboxed spawn target for local agent processes: filesystem scope limited to the workspace with explicit read-only system paths (/bin, /usr, /etc/ssl, gitconfig, …), managed/extra paths with ro/rw access, path aliases, outbound restore paths, and an optional separate home dir. Network egress is either denied or restricted to an allowlist of exact hostnames (optionally host:port or origin URLs; wildcards rejected), enforced by an in-process HTTP proxy listening on a Unix socket with CONNECT tunneling for HTTPS. Guards Linux Unix-socket path length limits by probing temp dirs before creating the proxy.",
+        "tags": ["local-sandbox", "filesystem-isolation", "network-allowlist", "http-proxy", "process-spawn"],
+      "behavior": [
+        "networkScope=\"allowlist\" with zero valid rules throws, and allowlist entries containing credentials, paths, wildcards, or '*' hostnames are rejected with explicit errors.",
+        "The proxy answers plain-HTTP requests by forwarding only http: targets (https must use CONNECT) and denies disallowed host:port pairs with a 403 network_target_denied JSON error, including on the CONNECT tunnel path.",
+        "The sandbox proxy temp directory is created under /tmp or os.tmpdir() and retried until proxy.sock fits within the 107-byte Unix socket path limit, else the whole sandbox setup fails."
+      ]
+    },
+    {
+      "path": "packages/adapter-utils/src/server-utils.ts",
+      "community": "4",
+      "summary": "Shared server-side utilities for running agent processes: runChildProcess-style execution with process-group signaling, grace periods, output caps (4MB capture / 32KB excerpt), a running-process registry, and TerminalResultCleanupEvidence describing when an unmanaged background task is stopped for lack of a durable live path. Owns the PAPERCLIP_* env namespace rules (runtime vars always win; PAPERCLIP_API_KEY is forbidden from config env), instance-root resolution under ~/.paperclip/instances/<id> with a strict id charset, and sensitive-env redaction to ***REDACTED***. Also authors DEFAULT_PAPERCLIP_AGENT_PROMPT_TEMPLATE — the agent execution contract for heartbeat work (dispositions, interactions API, plan confirmations) — and the WATCHDOG_DEFAULT_MANDATE, plus skill materialization with sentinel files and 30s-stale locks.",
+        "tags": ["process-runner", "env-hardening", "prompt-contract", "skills", "redaction"],
+      "behavior": [
+        "signalRunningProcess escalates correctly by gating the direct-child signal on real liveness (exitCode and signalCode both null) rather than child.killed, so a follow-up SIGKILL is never suppressed.",
+        "isForbiddenConfigEnvKey blocks PAPERCLIP_API_KEY from adapter/user config env, making the harness-minted run token the only source of Paperclip API identity; all other PAPERCLIP_* runtime vars override config.",
+        "resolvePaperclipInstanceRootForAdapter validates the instance id against ^[a-zA-Z0-9_-]+$ and resolves to <home>/instances/<id>, defaulting home to ~/.paperclip and id to \"default\".",
+        "Materialized skills carry a .paperclip-materialized-skill.json sentinel with an owner.json lock considered stale after 30 seconds."
+      ]
+    },
+    {
+      "path": "packages/adapter-utils/src/ssh.ts",
+      "community": "21",
+      "summary": "SSH transport for remote adapter execution: parses/validates SshRemoteExecutionSpec (host, port 1-65535, username, remoteCwd, optional private key/known hosts, strictHostKeyChecking defaulting true) and exposes createSshCommandManagedRuntimeRunner, which composes shell-quoted remote commands with env exports, reports stdout/stderr via onLog, and normalizes failures into RunProcessResult. runSshCommand enforces timeouts and maxBuffer with SIGTERM followed by a 5-second SIGKILL escalation for hung remotes. Integrates git workspace sync (unrelated-history graft commits, sanitized origin URL) and baseline-merge directory restore, and ships an OpenBSD sshd lab fixture (SshEnvLabFixtureState) for testing.",
+        "tags": ["ssh", "remote-execution", "shell-quoting", "git-sync", "timeout-escalation"],
+      "behavior": [
+        "The runner rewrites sh/bash -c invocations into an export-prefixed script and other commands into `env K=V exec 'cmd' 'args'`, always prefixed with `cd '<cwd>' &&`, so env and cwd apply remotely without a shell on the client side.",
+        "shellQuote wraps values in single quotes and escapes embedded quotes as '\\\"'\\\"', and only env keys matching ^[A-Za-z_][A-Za-z0-9_]*$ are exported.",
+        "On timeout the child gets SIGTERM and then SIGKILL after a 5s grace window; exceeding maxBuffer on either stream also kills the child with a maxBuffer error.",
+        "parseSshRemoteExecutionSpec returns null for a missing host/username/remoteCwd or an out-of-range/non-integer port, and defaults remoteWorkspacePath to remoteCwd."
+      ]
+    }
+  ]
+}

@@ -1,0 +1,91 @@
+{
+  "features": [
+    {
+      "community": "37",
+      "name": "Embedded PostgreSQL test harness",
+      "summary": "Provides disposable, self-contained PostgreSQL clusters for the test suite: it allocates a free port (skipping reserved Paperclip ports), initializes a temp data directory, and starts an embedded-postgres instance with bounded retry. Failures surface the real Postgres output captured in a bounded log buffer, shutdown is time-bounded so test hooks never hang, and data directories are reclaimed only after the process actually exits. A support probe reports whether the embedded runtime works on the current machine before tests depend on it."
+    },
+    {
+      "community": "54",
+      "name": "Allowlisted Google Sheets agent tools",
+      "summary": "Exposes Google Sheets operations (list, read, search, append, update, add tab, clear, delete rows) as MCP tools that agents can call, with every operation gated by a configured spreadsheet-ID allowlist. Each tool carries MCP risk annotations (read-only vs destructive hints) so clients can gate dangerous calls, validates input through strict zod schemas (single-line A1 ranges, bounded row counts), and redacts configured secrets from error responses before they reach the model."
+    },
+    {
+      "community": "228",
+      "name": "Agent-facing MCP toolset for issues, approvals, and workspaces",
+      "summary": "Wraps the platform's core API as typed MCP tools an agent can invoke: identity and inbox lookup, issue list/create/update/checkout, comments, versioned markdown documents, and approval creation with approve/reject/requestRevision/resubmit decisions. It also powers issue-thread interactions — suggesting tasks, asking the user questions, and requesting (checkbox) confirmations — each with idempotency keys and continuation policies that can wake the assignee agent. Finally it exposes execution-workspace runtime control: start/stop/restart services by ID or name and poll until a service is actually ready, with a bounded wait timeout."
+    },
+    {
+      "community": "73",
+      "name": "Plugin project scaffolding",
+      "summary": "Generates a complete starter project for new Paperclip plugins from a template (default, connector, workspace, environment), including manifest/worker/UI entry points, package.json, tsconfig, esbuild and rollup configs built from the SDK's bundler presets, and vitest setup. It validates npm-style plugin names and categories, refuses to overwrite an existing directory, and wires the plugin SDK either as a workspace dependency inside the monorepo or as a locally packed tarball outside it. Generated scripts include a watch-mode build and a dev server for hot-reloading the plugin UI."
+    },
+    {
+      "community": "154",
+      "name": "Plugin UI animation showcase",
+      "summary": "An example plugin UI component (kitchen-sink demo) that renders a living ASCII-art scene of paperclip sprites drifting across a monospace character grid with motion trails and ambient waves. It throttles rendering to 24 FPS via requestAnimationFrame with delta-scaled physics on typed-array grids, rebuilds the grid from measured glyph metrics when the container resizes, and gracefully degrades to a static frame when prefers-reduced-motion is set or the tab is hidden. It demonstrates the capabilities and performance discipline available to third-party plugin UIs."
+    }
+  ],
+  "files": [
+    {
+      "path": "packages/db/src/test-embedded-postgres.ts",
+      "community": "37",
+      "summary": "Test-support module that launches disposable embedded PostgreSQL clusters for the test suite. It handles free-port allocation (avoiding reserved Paperclip ports), temp data-directory lifecycle, bounded-retry startup with real Postgres log capture, and a time-bounded graceful stop so test hooks never hang.",
+      "tags": ["testing", "embedded-postgres", "port-allocation", "retry", "cleanup"],
+      "behavior": [
+        "Allocates a random free TCP port via a bind-probe loop that retries up to 20 times, rejecting any port in the reserved set (default 54329 plus PAPERCLIP_EMBEDDED_POSTGRES_PORT and PAPERCLIP_TEST_POSTGRES_RESERVED_PORTS).",
+        "Retries cluster startup up to 5 attempts, each with a fresh port and fresh temp data dir; on final failure it throws an error that includes recent Postgres output captured from a bounded log buffer, because start() rejections carry empty messages.",
+        "Bounds the graceful stop wait at 5000ms via Promise.race so vitest afterAll hooks complete, and chains data-dir removal on the raw stop() promise so files are only deleted after the Postgres child process has actually exited.",
+        "Exposes a support probe (getEmbeddedPostgresTestSupport) that starts and immediately tears down a cluster to report {supported, reason}, plus test-only seams to replace the embedded-postgres constructor provider."
+      ]
+    },
+    {
+      "path": "packages/google-sheets-mcp-server/src/tools.ts",
+      "community": "54",
+      "summary": "Defines the MCP tool surface for a Google Sheets server: list spreadsheets, get metadata, read/search values, append/update rows, add sheet tabs, and clear values or delete rows. Every tool is schema-validated, allowlist-gated, risk-annotated, and its errors are secret-redacted before returning to the caller.",
+      "tags": ["mcp", "google-sheets", "tools", "allowlist", "secret-redaction"],
+      "behavior": [
+        "Rejects any operation whose spreadsheetId is not in the configured allowlist (trimmed, deduped, non-empty), throwing 'Spreadsheet ... is not in the configured allowlist.'",
+        "Attaches MCP ToolAnnotations per risk tier: read tools get readOnlyHint=true; write tools get destructiveHint=false; clear_values and delete_rows are marked destructive, and delete_rows additionally validates endIndex > startIndex.",
+        "Redacts configured secrets (values of length >= 8) from error text by string replacement with [REDACTED] before returning isError tool results.",
+        "Validates inputs with zod: ranges must be single-line A1 notation <= 500 chars, search is case-insensitive by default with maxResults capped at 500, and valueInputOption defaults to RAW."
+      ]
+    },
+    {
+      "path": "packages/mcp-server/src/tools.ts",
+      "community": "228",
+      "summary": "Core MCP server tool definitions that expose the Paperclip platform API to agents: actor/inbox identity, issue list/create/update/checkout, comments, versioned markdown documents, approval creation and decisions, issue-thread interactions (suggest tasks, ask questions, request confirmations), a raw API-request passthrough, and execution-workspace runtime control. Each tool zod-validates input and returns formatted text or error content via PaperclipApiClient.",
+      "tags": ["mcp", "agent-tools", "issues", "approvals", "workspace-runtime"],
+      "behavior": [
+        "Wraps REST endpoints as named tools (paperclipMe, paperclipInboxLite, paperclipListIssues with ~16 filter params, createIssue, updateIssue, checkoutIssue, addComment, upsertDocument with baseRevisionId for optimistic versioning, approval create/decide with approve|reject|requestRevision|resubmit actions).",
+        "Creates issue-thread interactions — suggestTasks, askUserQuestions, requestConfirmation, requestCheckboxConfirmation — each accepting idempotencyKey, sourceCommentId/sourceRunId provenance, and a continuationPolicy (default 'wake_assignee' or 'none') that controls whether the assignee agent is re-engaged.",
+        "Controls issue workspace runtimes: start/stop/restart by workspaceCommandId, runtimeServiceId, or serviceIndex; fetches heartbeat-context to read currentExecutionWorkspace.runtimeServices and selects a service by ID, name, or first running/starting instance.",
+        "Waits for a workspace service to be ready by polling with sleep() up to a caller-supplied timeoutSeconds (max 300)."
+      ]
+    },
+    {
+      "path": "packages/plugins/create-paperclip-plugin/src/index.ts",
+      "community": "73",
+      "summary": "Scaffolding engine for new Paperclip plugin projects. It validates plugin names and categories, resolves a template (default/connector/workspace/environment), and writes a complete starter repo: package.json with paperclipPlugin manifest/worker/ui entries, tsconfig, esbuild and rollup configs from SDK bundler presets, vitest config, and dev scripts including a hot-reload UI dev server.",
+      "tags": ["scaffolding", "plugin-sdk", "codegen", "developer-tooling", "bundling"],
+      "behavior": [
+        "Validates npm-style plugin names (scoped or lowercase unscoped) against regex patterns, rejects invalid template/category values with explicit messages, and refuses to scaffold if the output directory already exists.",
+        "Derives idiomatic metadata from the package name: strips the scope for the directory name, converts '@scope/name' to 'scope.name' for the manifest id, and title-cases tokens for the default display name.",
+        "When scaffolding outside the monorepo, builds and packs the local SDK and @paperclipai/shared packages with pnpm into a .paperclip-sdk tarball directory and references them via file: dependencies (with pnpm overrides); inside the repo it uses workspace:*.",
+        "Generates esbuild.config.mjs and rollup.config.mjs using createPluginBundlerPresets for worker, manifest, and UI bundles, with a --watch mode and a 'dev:ui' script invoking paperclip-plugin-dev-server on port 4177."
+      ]
+    },
+    {
+      "path": "packages/plugins/examples/plugin-kitchen-sink-example/src/ui/AsciiArtAnimation.tsx",
+      "community": "154",
+      "summary": "A React component for the kitchen-sink example plugin that renders an animated ASCII-art scene: paperclip sprites drift across a monospace character grid over an ambient sine-wave background, leaving fading motion trails. It is performance- and accessibility-disciplined: fixed 24 FPS via requestAnimationFrame, typed-array grids, resize-driven rebuilds, and a static-frame fallback for reduced-motion or hidden tabs.",
+      "tags": ["react", "animation", "ascii-art", "example-plugin-ui", "accessibility"],
+      "behavior": [
+        "Throttles rendering to 24 FPS (FRAME_INTERVAL_MS gate inside a requestAnimationFrame loop) with delta-scaled sprite physics (wobble via sin/cos drift, damping at 0.998, alpha fade-in/out over the first/last 12% of each sprite's life).",
+        "Maintains the scene in Float32Array/Uint16Array buffers (trail decay 0.92 per frame, clipMask char codes) and skips DOM writes entirely when the composed output string is unchanged from the last frame.",
+        "Measures the monospace glyph cell with a hidden span and uses a ResizeObserver to rebuild the grid (cols/rows/buffers) when the container resizes, dropping out-of-bounds clips.",
+        "Stops the animation loop and renders a single static frame (ambient pattern plus tiled paperclip sprites) when prefers-reduced-motion matches or document.visibilityState is hidden, and cleans up all observers/listeners on unmount."
+      ]
+    }
+  ]
+}

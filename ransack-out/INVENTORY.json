@@ -1,0 +1,1450 @@
+{
+ "families": [
+  {
+   "path": "ui/src/adapters",
+   "count": 13,
+   "shape": [
+    "index.ts"
+   ],
+   "members": [
+    "claude-local",
+    "codex-local",
+    "cursor",
+    "cursor-cloud",
+    "gemini-local",
+    "grok-local",
+    "hermes-gateway",
+    "hermes-local",
+    "http",
+    "openclaw-gateway",
+    "opencode-local",
+    "pi-local",
+    "process"
+   ],
+   "kind": "adapter"
+  },
+  {
+   "path": "packages/adapters",
+   "count": 11,
+   "shape": [
+    "package.json",
+    "src"
+   ],
+   "members": [
+    "claude-local",
+    "codex-local",
+    "cursor-cloud",
+    "cursor-local",
+    "gemini-local",
+    "grok-local",
+    "hermes",
+    "hermes-gateway",
+    "openclaw-gateway",
+    "opencode-local",
+    "pi-local"
+   ],
+   "kind": "adapter"
+  },
+  {
+   "path": "packages",
+   "count": 9,
+   "shape": [
+    "package.json",
+    "src"
+   ],
+   "members": [
+    "adapter-utils",
+    "db",
+    "google-sheets-mcp-server",
+    "kv-demo-mcp-server",
+    "mcp-server",
+    "shared",
+    "skills-catalog",
+    "tailscale-https-broker",
+    "teams-catalog"
+   ],
+   "kind": "package"
+  },
+  {
+   "path": "packages/plugins/sandbox-providers",
+   "count": 7,
+   "shape": [
+    "package.json",
+    "src"
+   ],
+   "members": [
+    "cloudflare",
+    "daytona",
+    "e2b",
+    "exe-dev",
+    "kubernetes",
+    "modal",
+    "novita"
+   ],
+   "kind": "plugin"
+  },
+  {
+   "path": "packages/plugins/plugin-llm-wiki/skills",
+   "count": 6,
+   "shape": [
+    "SKILL.md"
+   ],
+   "members": [
+    "index-refresh",
+    "paperclip-distill",
+    "wiki-ingest",
+    "wiki-lint",
+    "wiki-maintainer",
+    "wiki-query"
+   ],
+   "kind": "plugin"
+  },
+  {
+   "path": "server/src",
+   "count": 5,
+   "shape": [
+    "index.ts"
+   ],
+   "members": [
+    "adapters",
+    "middleware",
+    "routes",
+    "services",
+    "storage"
+   ],
+   "kind": "sibling-group"
+  },
+  {
+   "path": "packages/plugins",
+   "count": 5,
+   "shape": [
+    "package.json",
+    "src"
+   ],
+   "members": [
+    "create-paperclip-plugin",
+    "paperclip-plugin-fake-sandbox",
+    "plugin-llm-wiki",
+    "plugin-workspace-diff",
+    "sdk"
+   ],
+   "kind": "plugin"
+  },
+  {
+   "path": "packages/plugins/examples",
+   "count": 5,
+   "shape": [
+    "package.json",
+    "src"
+   ],
+   "members": [
+    "plugin-authoring-smoke-example",
+    "plugin-file-browser-example",
+    "plugin-hello-world-example",
+    "plugin-kitchen-sink-example",
+    "plugin-orchestration-smoke-example"
+   ],
+   "kind": "plugin"
+  },
+  {
+   "path": "packages/skills-catalog/catalog/bundled/paperclip-operations",
+   "count": 5,
+   "shape": [
+    "SKILL.md"
+   ],
+   "members": [
+    "issue-triage",
+    "reflection-coach",
+    "status-card-query",
+    "summarize-status",
+    "task-planning"
+   ],
+   "kind": "skill"
+  },
+  {
+   "path": "skills",
+   "count": 5,
+   "shape": [
+    "SKILL.md"
+   ],
+   "members": [
+    "paperclip",
+    "paperclip-board",
+    "paperclip-converting-plans-to-tasks",
+    "paperclip-create-agent",
+    "para-memory-files"
+   ],
+   "kind": "skill"
+  },
+  {
+   "path": "packages/adapters/hermes/src",
+   "count": 4,
+   "shape": [
+    "index.ts"
+   ],
+   "members": [
+    "cli",
+    "gateway",
+    "server",
+    "ui"
+   ],
+   "kind": "adapter"
+  },
+  {
+   "path": "<root>",
+   "count": 3,
+   "shape": [
+    "package.json",
+    "src"
+   ],
+   "members": [
+    "cli",
+    "server",
+    "ui"
+   ],
+   "kind": "sibling-group"
+  },
+  {
+   "path": "ui/src",
+   "count": 3,
+   "shape": [
+    "index.ts"
+   ],
+   "members": [
+    "adapters",
+    "api",
+    "i18n"
+   ],
+   "kind": "sibling-group"
+  },
+  {
+   "path": "packages/shared/src",
+   "count": 3,
+   "shape": [
+    "index.ts"
+   ],
+   "members": [
+    "telemetry",
+    "types",
+    "validators"
+   ],
+   "kind": "package"
+  },
+  {
+   "path": "packages/adapters/hermes-gateway/src",
+   "count": 3,
+   "shape": [
+    "index.ts"
+   ],
+   "members": [
+    "cli",
+    "server",
+    "ui"
+   ],
+   "kind": "adapter"
+  },
+  {
+   "path": "packages/adapters/cursor-local/src",
+   "count": 3,
+   "shape": [
+    "index.ts"
+   ],
+   "members": [
+    "cli",
+    "server",
+    "ui"
+   ],
+   "kind": "adapter"
+  },
+  {
+   "path": "packages/adapters/opencode-local/src",
+   "count": 3,
+   "shape": [
+    "index.ts"
+   ],
+   "members": [
+    "cli",
+    "server",
+    "ui"
+   ],
+   "kind": "adapter"
+  },
+  {
+   "path": "packages/adapters/cursor-cloud/src",
+   "count": 3,
+   "shape": [
+    "index.ts"
+   ],
+   "members": [
+    "cli",
+    "server",
+    "ui"
+   ],
+   "kind": "adapter"
+  },
+  {
+   "path": "packages/adapters/gemini-local/src",
+   "count": 3,
+   "shape": [
+    "index.ts"
+   ],
+   "members": [
+    "cli",
+    "server",
+    "ui"
+   ],
+   "kind": "adapter"
+  },
+  {
+   "path": "packages/adapters/grok-local/src",
+   "count": 3,
+   "shape": [
+    "index.ts"
+   ],
+   "members": [
+    "cli",
+    "server",
+    "ui"
+   ],
+   "kind": "adapter"
+  },
+  {
+   "path": "packages/adapters/claude-local/src",
+   "count": 3,
+   "shape": [
+    "index.ts"
+   ],
+   "members": [
+    "cli",
+    "server",
+    "ui"
+   ],
+   "kind": "adapter"
+  },
+  {
+   "path": "packages/adapters/codex-local/src",
+   "count": 3,
+   "shape": [
+    "index.ts"
+   ],
+   "members": [
+    "cli",
+    "server",
+    "ui"
+   ],
+   "kind": "adapter"
+  },
+  {
+   "path": "packages/adapters/openclaw-gateway/src",
+   "count": 3,
+   "shape": [
+    "index.ts"
+   ],
+   "members": [
+    "cli",
+    "server",
+    "ui"
+   ],
+   "kind": "adapter"
+  },
+  {
+   "path": "packages/adapters/hermes/src/gateway",
+   "count": 3,
+   "shape": [
+    "index.ts"
+   ],
+   "members": [
+    "cli",
+    "server",
+    "ui"
+   ],
+   "kind": "adapter"
+  },
+  {
+   "path": "packages/adapters/pi-local/src",
+   "count": 3,
+   "shape": [
+    "index.ts"
+   ],
+   "members": [
+    "cli",
+    "server",
+    "ui"
+   ],
+   "kind": "adapter"
+  }
+ ],
+ "packages": [
+  {
+   "name": "paperclip",
+   "eco": "npm",
+   "private": true,
+   "path": "."
+  },
+  {
+   "name": "paperclipai",
+   "eco": "npm",
+   "private": false,
+   "path": "cli"
+  },
+  {
+   "name": "@paperclipai/adapter-utils",
+   "eco": "npm",
+   "private": false,
+   "path": "packages/adapter-utils"
+  },
+  {
+   "name": "@paperclipai/adapter-claude-local",
+   "eco": "npm",
+   "private": false,
+   "path": "packages/adapters/claude-local"
+  },
+  {
+   "name": "@paperclipai/adapter-codex-local",
+   "eco": "npm",
+   "private": false,
+   "path": "packages/adapters/codex-local"
+  },
+  {
+   "name": "@paperclipai/adapter-cursor-cloud",
+   "eco": "npm",
+   "private": false,
+   "path": "packages/adapters/cursor-cloud"
+  },
+  {
+   "name": "@paperclipai/adapter-cursor-local",
+   "eco": "npm",
+   "private": false,
+   "path": "packages/adapters/cursor-local"
+  },
+  {
+   "name": "@paperclipai/adapter-gemini-local",
+   "eco": "npm",
+   "private": false,
+   "path": "packages/adapters/gemini-local"
+  },
+  {
+   "name": "@paperclipai/adapter-grok-local",
+   "eco": "npm",
+   "private": false,
+   "path": "packages/adapters/grok-local"
+  },
+  {
+   "name": "@paperclipai/hermes-paperclip-adapter",
+   "eco": "npm",
+   "private": false,
+   "path": "packages/adapters/hermes"
+  },
+  {
+   "name": "@paperclipai/adapter-hermes-gateway",
+   "eco": "npm",
+   "private": false,
+   "path": "packages/adapters/hermes-gateway"
+  },
+  {
+   "name": "@paperclipai/adapter-openclaw-gateway",
+   "eco": "npm",
+   "private": false,
+   "path": "packages/adapters/openclaw-gateway"
+  },
+  {
+   "name": "@paperclipai/adapter-opencode-local",
+   "eco": "npm",
+   "private": false,
+   "path": "packages/adapters/opencode-local"
+  },
+  {
+   "name": "@paperclipai/adapter-pi-local",
+   "eco": "npm",
+   "private": false,
+   "path": "packages/adapters/pi-local"
+  },
+  {
+   "name": "@paperclipai/db",
+   "eco": "npm",
+   "private": false,
+   "path": "packages/db"
+  },
+  {
+   "name": "@paperclipai/google-sheets-mcp-server",
+   "eco": "npm",
+   "private": false,
+   "path": "packages/google-sheets-mcp-server"
+  },
+  {
+   "name": "@paperclipai/kv-demo-mcp-server",
+   "eco": "npm",
+   "private": false,
+   "path": "packages/kv-demo-mcp-server"
+  },
+  {
+   "name": "@paperclipai/mcp-server",
+   "eco": "npm",
+   "private": false,
+   "path": "packages/mcp-server"
+  },
+  {
+   "name": "@paperclipai/create-paperclip-plugin",
+   "eco": "npm",
+   "private": false,
+   "path": "packages/plugins/create-paperclip-plugin"
+  },
+  {
+   "name": "@paperclipai/plugin-authoring-smoke-example",
+   "eco": "npm",
+   "private": true,
+   "path": "packages/plugins/examples/plugin-authoring-smoke-example"
+  },
+  {
+   "name": "@paperclipai/plugin-file-browser-example",
+   "eco": "npm",
+   "private": true,
+   "path": "packages/plugins/examples/plugin-file-browser-example"
+  },
+  {
+   "name": "@paperclipai/plugin-hello-world-example",
+   "eco": "npm",
+   "private": true,
+   "path": "packages/plugins/examples/plugin-hello-world-example"
+  },
+  {
+   "name": "@paperclipai/plugin-kitchen-sink-example",
+   "eco": "npm",
+   "private": true,
+   "path": "packages/plugins/examples/plugin-kitchen-sink-example"
+  },
+  {
+   "name": "@paperclipai/plugin-orchestration-smoke-example",
+   "eco": "npm",
+   "private": true,
+   "path": "packages/plugins/examples/plugin-orchestration-smoke-example"
+  },
+  {
+   "name": "@paperclipai/plugin-fake-sandbox",
+   "eco": "npm",
+   "private": true,
+   "path": "packages/plugins/paperclip-plugin-fake-sandbox"
+  },
+  {
+   "name": "@paperclipai/plugin-llm-wiki",
+   "eco": "npm",
+   "private": true,
+   "path": "packages/plugins/plugin-llm-wiki"
+  },
+  {
+   "name": "@paperclipai/plugin-workspace-diff",
+   "eco": "npm",
+   "private": false,
+   "path": "packages/plugins/plugin-workspace-diff"
+  },
+  {
+   "name": "@paperclipai/plugin-cloudflare-sandbox",
+   "eco": "npm",
+   "private": false,
+   "path": "packages/plugins/sandbox-providers/cloudflare"
+  },
+  {
+   "name": "paperclip-cloudflare-sandbox-bridge-template",
+   "eco": "npm",
+   "private": true,
+   "path": "packages/plugins/sandbox-providers/cloudflare/bridge-template"
+  },
+  {
+   "name": "@paperclipai/plugin-daytona",
+   "eco": "npm",
+   "private": false,
+   "path": "packages/plugins/sandbox-providers/daytona"
+  },
+  {
+   "name": "@paperclipai/plugin-e2b",
+   "eco": "npm",
+   "private": false,
+   "path": "packages/plugins/sandbox-providers/e2b"
+  },
+  {
+   "name": "@paperclipai/plugin-exe-dev",
+   "eco": "npm",
+   "private": false,
+   "path": "packages/plugins/sandbox-providers/exe-dev"
+  },
+  {
+   "name": "@paperclipai/plugin-kubernetes",
+   "eco": "npm",
+   "private": false,
+   "path": "packages/plugins/sandbox-providers/kubernetes"
+  },
+  {
+   "name": "@paperclipai/plugin-modal",
+   "eco": "npm",
+   "private": false,
+   "path": "packages/plugins/sandbox-providers/modal"
+  },
+  {
+   "name": "@paperclipai/plugin-novita-sandbox",
+   "eco": "npm",
+   "private": false,
+   "path": "packages/plugins/sandbox-providers/novita"
+  },
+  {
+   "name": "@paperclipai/plugin-sdk",
+   "eco": "npm",
+   "private": false,
+   "path": "packages/plugins/sdk"
+  },
+  {
+   "name": "@paperclipai/shared",
+   "eco": "npm",
+   "private": false,
+   "path": "packages/shared"
+  },
+  {
+   "name": "@paperclipai/skills-catalog",
+   "eco": "npm",
+   "private": false,
+   "path": "packages/skills-catalog"
+  },
+  {
+   "name": "@paperclipai/tailscale-https-broker",
+   "eco": "npm",
+   "private": true,
+   "path": "packages/tailscale-https-broker"
+  },
+  {
+   "name": "@paperclipai/teams-catalog",
+   "eco": "npm",
+   "private": false,
+   "path": "packages/teams-catalog"
+  },
+  {
+   "name": "@paperclipai/server",
+   "eco": "npm",
+   "private": false,
+   "path": "server"
+  },
+  {
+   "name": "github.com/paperclipai/paperclip/tools/agent-shim",
+   "eco": "go",
+   "private": false,
+   "path": "tools/agent-shim"
+  },
+  {
+   "name": "@paperclipai/ui",
+   "eco": "npm",
+   "private": false,
+   "path": "ui"
+  }
+ ],
+ "entrypoints": {
+  "worker/queue": [
+   "ui/src/adapters/sandboxed-parser-worker.ts",
+   "ui/src/hooks/useWorkspaceFileAvailability.ts",
+   "ui/src/pages/JoinRequestQueue.tsx",
+   "server/src/services/decision-queues.ts"
+  ],
+  "websocket": [
+   "ui/src/components/transcript/useLiveRunTranscripts.ts",
+   "ui/src/pages/CompanyEnvironments.tsx",
+   "server/src/index.ts",
+   "server/src/realtime/live-events-ws.ts",
+   "server/src/realtime/environment-custom-image-terminal-ws.ts",
+   "packages/adapters/openclaw-gateway/src/server/test.ts",
+   "packages/adapters/openclaw-gateway/src/server/execute.ts"
+  ],
+  "cron/schedule": [
+   "ui/src/hooks/useSecondTick.ts",
+   "packages/kv-demo-mcp-server/src/render.ts"
+  ],
+  "mcp server": [
+   "ui/src/pages/tools/PasteConfigTab.tsx",
+   "server/src/adapters/index.ts",
+   "server/src/services/heartbeat.ts",
+   "packages/kv-demo-mcp-server/src/http.ts",
+   "packages/kv-demo-mcp-server/src/tools.ts",
+   "packages/kv-demo-mcp-server/src/index.ts",
+   "packages/mcp-server/src/index.ts",
+   "packages/google-sheets-mcp-server/src/http.ts",
+   "packages/google-sheets-mcp-server/src/tools.ts",
+   "packages/google-sheets-mcp-server/src/index.ts",
+   "packages/adapters/claude-local/src/server/claude-config.ts",
+   "packages/adapters/claude-local/src/server/execute.ts",
+   "packages/adapters/codex-local/src/server/codex-home.ts",
+   "packages/adapter-utils/src/types.ts",
+   "packages/adapter-utils/src/index.ts",
+   "packages/adapter-utils/src/acpx-engine/run-contracts.ts"
+  ],
+  "http server": [
+   "server/src/app.ts",
+   "server/src/index.ts",
+   "server/src/services/smoke-lab.ts",
+   "server/src/services/workspace-runtime.ts",
+   "cli/src/utils/net.ts",
+   "cli/src/commands/routines.ts",
+   "cli/src/commands/worktree.ts",
+   "scripts/screenshot-notion-connect-flow.mjs",
+   "scripts/screenshot-blocked-inbox.mjs",
+   "scripts/capture-pap-2351-binding-picker.mjs",
+   "scripts/serve-storybook-static.mjs",
+   "packages/kv-demo-mcp-server/src/http.ts",
+   "packages/plugins/sdk/src/dev-server.ts",
+   "packages/google-sheets-mcp-server/src/http.ts",
+   "packages/db/src/test-embedded-postgres.ts",
+   "packages/db/src/migration-runtime.ts",
+   "packages/tailscale-https-broker/src/socket-server.ts",
+   "packages/adapter-utils/src/local-process-sandbox.ts",
+   "packages/adapter-utils/src/ssh.ts"
+  ],
+  "cli": [
+   "cli/esbuild.config.mjs",
+   "cli/src/index.ts",
+   "cli/src/commands/pipelines.ts",
+   "cli/src/commands/env-lab.ts",
+   "cli/src/commands/routines.ts",
+   "cli/src/commands/worktree.ts",
+   "cli/src/commands/service.ts",
+   "cli/src/commands/client/project.ts",
+   "cli/src/commands/client/issue.ts",
+   "cli/src/commands/client/cost.ts",
+   "cli/src/commands/client/goal.ts",
+   "cli/src/commands/client/workspace.ts",
+   "cli/src/commands/client/prompt.ts",
+   "cli/src/commands/client/routine-api.ts",
+   "cli/src/commands/client/plugin.ts",
+   "cli/src/commands/client/approval.ts",
+   "cli/src/commands/client/agent.ts",
+   "cli/src/commands/client/common.ts",
+   "cli/src/commands/client/context.ts",
+   "cli/src/commands/client/secrets.ts",
+   "cli/src/commands/client/dashboard.ts",
+   "cli/src/commands/client/activity.ts",
+   "cli/src/commands/client/access.ts",
+   "cli/src/commands/client/teams.ts",
+   "cli/src/commands/client/feedback.ts",
+   "cli/src/commands/client/adapter.ts",
+   "cli/src/commands/client/asset.ts",
+   "cli/src/commands/client/connect.ts",
+   "cli/src/commands/client/skills.ts",
+   "cli/src/commands/client/company.ts",
+   "cli/src/commands/client/token.ts",
+   "cli/src/commands/client/run.ts",
+   "cli/src/commands/client/auth.ts",
+   "cli/src/commands/client/skill.ts",
+   "scripts/measure-issue-chat-long-thread.mjs",
+   "scripts/screenshot-verdicts.mjs",
+   "scripts/generate-ui-package-json.mjs",
+   "scripts/release-registry-versions.mjs",
+   "scripts/prepare-bundled-package.mjs",
+   "scripts/run-vitest-stable.mjs"
+  ],
+  "migration": [
+   "packages/plugins/examples/plugin-orchestration-smoke-example/migrations/001_orchestration_smoke.sql",
+   "packages/plugins/plugin-llm-wiki/migrations/002_paperclip_distillation.sql",
+   "packages/plugins/plugin-llm-wiki/migrations/001_llm_wiki.sql",
+   "packages/plugins/plugin-llm-wiki/migrations/003_spaces.sql",
+   "packages/db/src/client.ts",
+   "packages/db/src/backup-lib.ts",
+   "packages/db/src/migrations/0143_cases_foundation.sql",
+   "packages/db/src/migrations/0002_big_zaladane.sql",
+   "packages/db/src/migrations/0018_flat_sleepwalker.sql",
+   "packages/db/src/migrations/0158_tool_invocation_connected_mcp_metadata.sql",
+   "packages/db/src/migrations/0165_connection_token_issuances.sql",
+   "packages/db/src/migrations/0197_decisions_v1.sql",
+   "packages/db/src/migrations/0038_careless_iron_monger.sql",
+   "packages/db/src/migrations/0118_pipeline_case_agent_fanout.sql",
+   "packages/db/src/migrations/0021_chief_vindicator.sql",
+   "packages/db/src/migrations/0168_tool_connection_installs.sql",
+   "packages/db/src/migrations/0128_user_specific_secrets.sql",
+   "packages/db/src/migrations/0095_issue_comment_tombstones.sql",
+   "packages/db/src/migrations/0122_pipeline_case_documents.sql",
+   "packages/db/src/migrations/0026_lying_pete_wisdom.sql",
+   "packages/db/src/migrations/0005_chief_luke_cage.sql",
+   "packages/db/src/migrations/0114_pipeline_case_issue_unlinked_event.sql",
+   "packages/db/src/migrations/0070_active_run_output_watchdog.sql",
+   "packages/db/src/migrations/0108_workspace_operations_issue_id.sql",
+   "packages/db/src/migrations/0099_skills_store_foundation.sql",
+   "packages/db/src/migrations/0214_lively_lord_tyger.sql",
+   "packages/db/src/migrations/0036_cheerful_nitro.sql",
+   "packages/db/src/migrations/0022_company_brand_color.sql",
+   "packages/db/src/migrations/0030_rich_magneto.sql",
+   "packages/db/src/migrations/0086_routine_env_runtime_contract.sql",
+   "packages/db/src/migrations/0125_environment_custom_image_templates.sql",
+   "packages/db/src/migrations/0159_named_mcp_gateways.sql",
+   "packages/db/src/migrations/0147_cost_event_status.sql",
+   "packages/db/src/migrations/0123_document_annotation_source_trust.sql",
+   "packages/db/src/migrations/0201_concerned_captain_midlands.sql",
+   "packages/db/src/migrations/0046_smooth_sentinels.sql",
+   "packages/db/src/migrations/0178_summary_slots.sql",
+   "packages/db/src/migrations/0062_routine_run_dispatch_fingerprint.sql",
+   "packages/db/src/migrations/0078_white_darwin.sql",
+   "packages/db/src/migrations/0081_optimal_dormammu.sql"
+  ]
+ },
+ "contracts": [],
+ "routes": {
+  "total": 0,
+  "by_file": []
+ },
+ "variants": [
+  {
+   "name": "ToolAccessReasonCode",
+   "count": 16,
+   "arms": [
+    "allow_trust_rule",
+    "allow_profile",
+    "allow_explicit_grant",
+    "allow_policy",
+    "requires_review_changed_tool",
+    "requires_approval_policy",
+    "deny_default",
+    "deny_company_boundary",
+    "deny_disabled_connection",
+    "deny_disabled_application",
+    "deny_archived_application",
+    "deny_missing_tool",
+    "deny_policy_block",
+    "deny_run_context_mismatch",
+    "deny_missing_agent",
+    "rate_limited"
+   ],
+   "file": "packages/shared/src/types/tool-access.ts"
+  },
+  {
+   "name": "ProjectConfigFieldKey",
+   "count": 15,
+   "arms": [
+    "name",
+    "description",
+    "status",
+    "goals",
+    "env",
+    "execution_workspace_enabled",
+    "execution_workspace_default_mode",
+    "execution_workspace_shared_concurrency",
+    "execution_workspace_environment",
+    "execution_workspace_base_ref",
+    "execution_workspace_branch_template",
+    "execution_workspace_worktree_parent_dir",
+    "execution_workspace_provision_command",
+    "execution_workspace_runtime_provision_command",
+    "execution_workspace_teardown_command"
+   ],
+   "file": "ui/src/components/ProjectProperties.tsx"
+  },
+  {
+   "name": "PaperclipEventName",
+   "count": 14,
+   "arms": [
+    "agent.created",
+    "agent.first_heartbeat",
+    "agent.task_completed",
+    "company.imported",
+    "error.handler_crash",
+    "goal.created",
+    "install.completed",
+    "install.started",
+    "interaction.created",
+    "interaction.resolved",
+    "project.created",
+    "routine.created",
+    "routine.run",
+    "skill.imported"
+   ],
+   "file": "packages/shared/src/telemetry/generated/paperclip-telemetry.ts"
+  },
+  {
+   "name": "PipelineHealthWarningCode",
+   "count": 13,
+   "arms": [
+    "paused_agent",
+    "stage_no_automation",
+    "automation_no_instructions",
+    "automation_no_agent",
+    "automation_failed",
+    "review_no_approver",
+    "missing_pipeline_reference",
+    "missing_stage_reference",
+    "breakdown_target_missing",
+    "breakdown_no_wait",
+    "breakdown_target_not_entry_safe",
+    "breakdown_field_mismatch",
+    "unset_required_variable"
+   ],
+   "file": "packages/shared/src/pipeline-health.ts"
+  },
+  {
+   "name": "IssueBlockedInboxReason",
+   "count": 12,
+   "arms": [
+    "blocked_by_unassigned_issue",
+    "blocked_by_assigned_backlog_issue",
+    "blocked_by_uninvokable_assignee",
+    "blocked_by_cancelled_issue",
+    "blocked_chain_stalled",
+    "invalid_review_participant",
+    "in_review_without_action_path",
+    "missing_successful_run_disposition",
+    "pending_board_decision",
+    "pending_user_decision",
+    "external_owner_action",
+    "open_recovery_issue"
+   ],
+   "file": "packages/shared/src/types/issue.ts"
+  },
+  {
+   "name": "CatalogTeamFileKind",
+   "count": 12,
+   "arms": [
+    "team",
+    "agent",
+    "project",
+    "task",
+    "skill",
+    "extension",
+    "readme",
+    "reference",
+    "script",
+    "asset",
+    "markdown",
+    "other"
+   ],
+   "file": "packages/shared/src/types/teams-catalog.ts"
+  },
+  {
+   "name": "CatalogTeamFileKind",
+   "count": 12,
+   "arms": [
+    "team",
+    "agent",
+    "project",
+    "task",
+    "skill",
+    "extension",
+    "readme",
+    "reference",
+    "script",
+    "asset",
+    "markdown",
+    "other"
+   ],
+   "file": "packages/teams-catalog/src/types.ts"
+  },
+  {
+   "name": "CaseEventKind",
+   "count": 11,
+   "arms": [
+    "created",
+    "updated",
+    "fields_changed",
+    "status_changed",
+    "issue_linked",
+    "issue_unlinked",
+    "document_revised",
+    "child_linked",
+    "attachment_added",
+    "label_added",
+    "label_removed"
+   ],
+   "file": "ui/src/api/cases.ts"
+  },
+  {
+   "name": "SecretResolutionErrorCode",
+   "count": 11,
+   "arms": [
+    "binding_missing",
+    "secret_deleted",
+    "secret_inactive",
+    "secret_scope_invalid",
+    "responsible_user_missing",
+    "user_secret_definition_missing",
+    "user_secret_definition_inactive",
+    "user_secret_missing",
+    "version_missing",
+    "version_inactive",
+    "provider_error"
+   ],
+   "file": "server/src/services/secrets.ts"
+  },
+  {
+   "name": "LoginSessionActivityPhase",
+   "count": 11,
+   "arms": [
+    "session_created",
+    "lease_acquired",
+    "lease_released",
+    "prompt_surfaced",
+    "promoting",
+    "sandbox_deleted",
+    "cleanup_pending",
+    "authenticated",
+    "failed",
+    "timed_out",
+    "cancelled"
+   ],
+   "file": "server/src/services/codex-device-login-service.ts"
+  },
+  {
+   "name": "ResourceStatusVariant",
+   "count": 10,
+   "arms": [
+    "ready",
+    "needs_setup",
+    "missing",
+    "error",
+    "update_available",
+    "drifted",
+    "schedule_off",
+    "schedule_on",
+    "pending_approval",
+    "proposal_pending"
+   ],
+   "file": "ui/src/components/ResourceStatusChip.tsx"
+  },
+  {
+   "name": "WorkspaceHandoffVerificationFailure",
+   "count": 10,
+   "arms": [
+    "not_configured",
+    "malformed",
+    "unsupported_version",
+    "bad_signature",
+    "expired",
+    "not_yet_valid",
+    "origin_mismatch",
+    "instance_mismatch",
+    "workspace_mismatch",
+    "company_mismatch"
+   ],
+   "file": "server/src/auth/workspace-login-handoff.ts"
+  },
+  {
+   "name": "AgentInvokabilityBlockReason",
+   "count": 10,
+   "arms": [
+    "missing",
+    "paused",
+    "terminated",
+    "pending_approval",
+    "unknown_status",
+    "manager_missing",
+    "manager_company_mismatch",
+    "manager_terminated",
+    "reporting_cycle",
+    "reporting_chain_too_deep"
+   ],
+   "file": "server/src/services/agent-invokability.ts"
+  },
+  {
+   "name": "EnvironmentErrorCode",
+   "count": 10,
+   "arms": [
+    "environment_not_found",
+    "environment_inactive",
+    "unsupported_environment",
+    "unsupported_adapter_environment",
+    "probe_failed",
+    "lease_acquire_failed",
+    "workspace_realization_failed",
+    "transport_resolution_failed",
+    "lease_release_failed",
+    "lease_cleanup_failed"
+   ],
+   "file": "server/src/services/environment-run-orchestrator.ts"
+  },
+  {
+   "name": "HeartbeatRunStopReason",
+   "count": 10,
+   "arms": [
+    "completed",
+    "interrupted",
+    "timeout",
+    "cancelled",
+    "budget_paused",
+    "paused",
+    "max_turns_exhausted",
+    "process_lost",
+    "unmanaged_background_task_stopped",
+    "adapter_failed"
+   ],
+   "file": "server/src/services/heartbeat-stop-metadata.ts"
+  },
+  {
+   "name": "Tone",
+   "count": 10,
+   "arms": [
+    "todo",
+    "in_progress",
+    "in_review",
+    "done",
+    "blocked",
+    "running",
+    "paused",
+    "failed",
+    "queued",
+    "default"
+   ],
+   "file": "packages/plugins/plugin-llm-wiki/src/ui/app.tsx"
+  },
+  {
+   "name": "ToolFamily",
+   "count": 9,
+   "arms": [
+    "terminal",
+    "grep",
+    "search",
+    "read",
+    "edit",
+    "web",
+    "agent",
+    "mcp",
+    "other"
+   ],
+   "file": "ui/src/components/task-chat/tool-taxonomy.ts"
+  },
+  {
+   "name": "AgentDetailView",
+   "count": 9,
+   "arms": [
+    "dashboard",
+    "instructions",
+    "configuration",
+    "secrets",
+    "skills",
+    "tools",
+    "runs",
+    "audit",
+    "budget"
+   ],
+   "file": "ui/src/pages/AgentDetail.tsx"
+  },
+  {
+   "name": "CaseColumn",
+   "count": 9,
+   "arms": [
+    "id",
+    "key",
+    "title",
+    "status",
+    "updated",
+    "created",
+    "type",
+    "project",
+    "parent"
+   ],
+   "file": "ui/src/pages/Cases.tsx"
+  },
+  {
+   "name": "ImportAdjustment",
+   "count": 9,
+   "arms": [
+    "clear_assignee_agent",
+    "clear_project",
+    "clear_project_workspace",
+    "clear_goal",
+    "clear_author_agent",
+    "coerce_in_progress_to_todo",
+    "clear_document_agent",
+    "clear_document_revision_agent",
+    "clear_attachment_agent"
+   ],
+   "file": "cli/src/commands/worktree-merge-history-lib.ts"
+  },
+  {
+   "name": "IssueWorkProductStatus",
+   "count": 9,
+   "arms": [
+    "active",
+    "ready_for_review",
+    "approved",
+    "changes_requested",
+    "merged",
+    "closed",
+    "failed",
+    "archived",
+    "draft"
+   ],
+   "file": "packages/shared/src/types/work-product.ts"
+  },
+  {
+   "name": "AppCategory",
+   "count": 9,
+   "arms": [
+    "ai",
+    "analytics",
+    "commerce",
+    "communication",
+    "content",
+    "data",
+    "developer",
+    "productivity",
+    "other"
+   ],
+   "file": "packages/shared/src/types/app-definition.ts"
+  },
+  {
+   "name": "AttentionSubjectKind",
+   "count": 9,
+   "arms": [
+    "approval",
+    "decision",
+    "issue",
+    "interaction",
+    "join_request",
+    "recovery_action",
+    "run",
+    "budget_incident",
+    "agent"
+   ],
+   "file": "packages/shared/src/types/attention.ts"
+  },
+  {
+   "name": "WorkspaceOperationPhase",
+   "count": 9,
+   "arms": [
+    "worktree_prepare",
+    "workspace_config_freshness",
+    "workspace_provision",
+    "workspace_seed",
+    "workspace_runtime_provision",
+    "workspace_repair",
+    "workspace_teardown",
+    "worktree_cleanup",
+    "workspace_finalize"
+   ],
+   "file": "packages/shared/src/types/workspace-operation.ts"
+  },
+  {
+   "name": "ClaudeSetupTokenSessionState",
+   "count": 9,
+   "arms": [
+    "starting",
+    "awaiting_code",
+    "submitting",
+    "persisting",
+    "stored",
+    "completed",
+    "failed",
+    "timed_out",
+    "cancelled"
+   ],
+   "file": "packages/db/src/schema/claude_setup_token_sessions.ts"
+  },
+  {
+   "name": "StatusGlyphStatus",
+   "count": 8,
+   "arms": [
+    "backlog",
+    "todo",
+    "in_progress",
+    "in_review",
+    "done",
+    "blocked",
+    "cancelled",
+    "in_queue"
+   ],
+   "file": "ui/src/components/StatusGlyph.tsx"
+  },
+  {
+   "name": "StatusCardLifecycle",
+   "count": 8,
+   "arms": [
+    "compiling",
+    "fresh",
+    "stale",
+    "updating",
+    "error",
+    "paused_budget",
+    "paused_hours",
+    "archived"
+   ],
+   "file": "ui/src/lib/status-card-state.ts"
+  },
+  {
+   "name": "AgentAssignmentConflictReason",
+   "count": 8,
+   "arms": [
+    "pending_approval",
+    "assignee_terminated",
+    "assignee_unknown_status",
+    "ancestor_terminated",
+    "ancestor_missing",
+    "ancestor_cross_company",
+    "ancestor_cycle",
+    "ancestor_depth_exceeded"
+   ],
+   "file": "server/src/services/agent-assignability.ts"
+  },
+  {
+   "name": "SetupTokenSessionState",
+   "count": 8,
+   "arms": [
+    "starting",
+    "awaiting_code",
+    "submitting",
+    "stored",
+    "completed",
+    "failed",
+    "timed_out",
+    "cancelled"
+   ],
+   "file": "server/src/services/setup-token-session.ts"
+  },
+  {
+   "name": "IssueReviewPathFactKind",
+   "count": 8,
+   "arms": [
+    "execution_participant",
+    "interaction",
+    "approval",
+    "monitor",
+    "human_reviewer",
+    "active_run",
+    "queued_wake",
+    "recovery"
+   ],
+   "file": "server/src/services/recovery/issue-graph-liveness.ts"
+  },
+  {
+   "name": "PluginEnvironmentInteractiveSetupStatus",
+   "count": 8,
+   "arms": [
+    "starting",
+    "waiting_for_user",
+    "capturing",
+    "promoted",
+    "cancelled",
+    "timed_out",
+    "failed",
+    "missing"
+   ],
+   "file": "packages/plugins/sdk/src/protocol.ts"
+  },
+  {
+   "name": "IssueReviewAttentionPathKind",
+   "count": 8,
+   "arms": [
+    "execution_participant",
+    "interaction",
+    "approval",
+    "monitor",
+    "human_reviewer",
+    "active_run",
+    "queued_wake",
+    "recovery"
+   ],
+   "file": "packages/shared/src/types/issue.ts"
+  },
+  {
+   "name": "CompanySearchIssueFilterKey",
+   "count": 8,
+   "arms": [
+    "status",
+    "assigneeAgentId",
+    "assigneeUserId",
+    "projectId",
+    "labelId",
+    "priority",
+    "updatedWithin",
+    "updatedAfter"
+   ],
+   "file": "packages/shared/src/types/search.ts"
+  },
+  {
+   "name": "AdapterBillingType",
+   "count": 8,
+   "arms": [
+    "api",
+    "subscription",
+    "metered_api",
+    "subscription_included",
+    "subscription_overage",
+    "credits",
+    "fixed",
+    "unknown"
+   ],
+   "file": "packages/adapter-utils/src/types.ts"
+  },
+  {
+   "name": "SchedulePreset",
+   "count": 7,
+   "arms": [
+    "every_minute",
+    "every_hour",
+    "every_day",
+    "weekdays",
+    "weekly",
+    "monthly",
+    "custom"
+   ],
+   "file": "ui/src/components/ScheduleEditor.tsx"
+  },
+  {
+   "name": "WorkspaceServiceControlState",
+   "count": 7,
+   "arms": [
+    "stopped",
+    "provisioning",
+    "starting",
+    "running",
+    "stopping",
+    "restarting",
+    "failed"
+   ],
+   "file": "ui/src/components/WorkspaceServiceControlBar.tsx"
+  },
+  {
+   "name": "ComposerHandoffPreviewKind",
+   "count": 7,
+   "arms": [
+    "interrupt_handoff_agent",
+    "wake_agent",
+    "user_handoff",
+    "clear_assignee",
+    "notify_agent",
+    "plain_text_only",
+    "none"
+   ],
+   "file": "ui/src/lib/interrupt-handoff.ts"
+  },
+  {
+   "name": "SearchOperatorKey",
+   "count": 7,
+   "arms": [
+    "status",
+    "assignee",
+    "project",
+    "label",
+    "priority",
+    "updated",
+    "is"
+   ],
+   "file": "ui/src/lib/search-query-parser.ts"
+  },
+  {
+   "name": "CaseSortField",
+   "count": 7,
+   "arms": [
+    "updated",
+    "created",
+    "title",
+    "status",
+    "id",
+    "type",
+    "project"
+   ],
+   "file": "ui/src/pages/Cases.tsx"
+  },
+  {
+   "name": "SmokeRunStepPath",
+   "count": 7,
+   "arms": [
+    "P1",
+    "P2",
+    "P3",
+    "P4",
+    "P5",
+    "P6",
+    "P7"
+   ],
+   "file": "tests/e2e/smoke-lab.catalog.ts"
+  }
+ ]
+}
