@@ -624,6 +624,10 @@ export const APPROVAL_TYPES = [
   "approve_ceo_strategy",
   "budget_override_required",
   "request_board_approval",
+  // A control-plane change the board concierge proposed in chat. The payload
+  // holds one BoardAction; approving it dispatches that action server-side
+  // (see server/src/services/board-action-dispatch.ts).
+  "board_action",
 ] as const;
 export type ApprovalType = (typeof APPROVAL_TYPES)[number];
 

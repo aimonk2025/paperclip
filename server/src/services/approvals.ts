@@ -207,6 +207,28 @@ export function approvalService(db: Db) {
         }
       }
 
+      // A board-chat proposal only takes effect here, once a human approves it.
+      // Guarded by `applied`, so re-approving an already-approved row cannot
+      // dispatch a second time. The outcome is recorded on the payload rather
+      // than thrown: the approval decision stands even if dispatch fails.
+      if (applied && updated.type === "board_action") {
+        const { dispatchBoardAction } = await import("./board-action-dispatch.js");
+        const result = await dispatchBoardAction(db, {
+          companyId: updated.companyId,
+          payload: updated.payload as Record<string, unknown>,
+          decidedByUserId,
+        });
+        const [withDispatch] = await db
+          .update(approvals)
+          .set({
+            payload: { ...(updated.payload as Record<string, unknown>), dispatch: result },
+            updatedAt: new Date(),
+          })
+          .where(eq(approvals.id, id))
+          .returning();
+        return { approval: withDispatch ?? updated, applied };
+      }
+
       return { approval: updated, applied };
     },
 

@@ -5,13 +5,19 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import type { Db } from "@paperclipai/db";
 import type { DeploymentMode } from "@paperclipai/shared";
-import { instanceSettingsService, issueService } from "../services/index.js";
+import {
+  approvalService,
+  instanceSettingsService,
+  issueService,
+} from "../services/index.js";
 import { assertCompanyAccess, getActorInfo } from "./authz.js";
+import { parseBoardActions, parseBoardProposals } from "./board-chat-actions.js";
 
 /**
  * Strip structured action signals (`%%ACTIONS%%{...}%%/ACTIONS%%`) from a
  * response before persisting. The board skill may emit these for the UI's
  * observer layer; they should never appear in the durable comment body.
+ * `parseBoardActions` reads the same envelopes before this strips them.
  */
 function stripActionSignals(response: string): string {
   return response.replace(/%%ACTIONS%%[\s\S]*?%%\/ACTIONS%%/g, "").trim();
@@ -30,6 +36,15 @@ function stripActionSignals(response: string): string {
  *   { type: "start",  issueId }   — emitted once the issue is resolved
  *   { type: "status", text }      — tool-use / progress indicator
  *   { type: "chunk",  text }      — a streamed token slice
+ *   { type: "actions", actions, truncated }
+ *                                 — control-plane actions the board announced
+ *                                   this turn; emitted just before `done` so a
+ *                                   client that only handles `done` is
+ *                                   unaffected. Omitted when there are none.
+ *   { type: "proposals", approvals, truncated }
+ *                                 — changes the board proposed; each is parked
+ *                                   as a pending approval and does nothing
+ *                                   until a human approves it.
  *   { type: "done",   issueId }   — terminal event; UI refetches comments
  *   { type: "error",  message }   — terminal error event
  */
@@ -367,7 +382,50 @@ export function boardChatRoutes(
         }
       }
 
+      // Surface announced actions to the observer layer. Parsed from the raw
+      // response (the envelopes are gone from `cleanedResponse`) and filtered
+      // against the prompt so an envelope a user pasted into the conversation
+      // cannot come back as an action when the model echoes it.
+      const { actions, truncated } = parseBoardActions(fullResponse, prompt);
+
+      // Proposals are a separate channel from receipts: nothing here executes.
+      // Each becomes a pending approval, and the change only happens when a
+      // human approves it (see services/board-action-dispatch.ts). Hire
+      // proposals are routed to the first-class `hire_agent` approval so they
+      // pick up its existing activation, budget and notification handling.
+      const proposals = parseBoardProposals(fullResponse, prompt);
+      const parked: Array<{ approvalId: string; type: string }> = [];
+      for (const action of proposals.actions) {
+        try {
+          const created = await approvalService(db).create(companyId, {
+            type: action.type === "HIRE_AGENT" ? "hire_agent" : "board_action",
+            requestedByUserId: "board-concierge",
+            // A hire carries its full payload through to the hire_agent flow;
+            // dropping the adapter config or system prompt here would approve
+            // an agent nobody actually reviewed.
+            payload: action.type === "HIRE_AGENT" ? action.hire : { action },
+          });
+          if (created) parked.push({ approvalId: created.id, type: created.type });
+        } catch (err) {
+          console.error("[board/chat/stream approval create]", err);
+        }
+      }
+
       if (res.writable) {
+        if (actions.length > 0) {
+          res.write(
+            `data: ${JSON.stringify({ type: "actions", actions, truncated })}\n\n`,
+          );
+        }
+        if (parked.length > 0) {
+          res.write(
+            `data: ${JSON.stringify({
+              type: "proposals",
+              approvals: parked,
+              truncated: proposals.truncated,
+            })}\n\n`,
+          );
+        }
         res.write(
           `data: ${JSON.stringify({
             type: "done",
