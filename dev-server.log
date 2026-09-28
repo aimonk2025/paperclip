@@ -1,0 +1,634 @@
+[WARN] The "pnpm" field in package.json is no longer read by pnpm. The following keys were ignored: "pnpm.patchedDependencies", "pnpm.overrides". See https://pnpm.io/settings for the new home of each setting.
+
+> paperclip@ dev /Users/chetan/Documents/paperclip
+> pnpm --filter @paperclipai/server exec tsx ../scripts/dev-runner.ts watch
+
+[paperclip] dev mode: local_trusted (default)
+
+> paperclip@ db:migrate /Users/chetan/Documents/paperclip
+> pnpm --filter @paperclipai/db migrate
+
+
+> @paperclipai/db@0.3.1 migrate /Users/chetan/Documents/paperclip/packages/db
+> pnpm run check:migrations && tsx src/migrate.ts
+
+
+> @paperclipai/db@0.3.1 check:migrations /Users/chetan/Documents/paperclip/packages/db
+> tsx src/check-migration-numbering.ts && tsx src/check-migration-safety.ts
+
+Migration safety check passed: 20 historical finding(s) covered by baseline (1 stale baseline id(s) ignored).
+Migrating database via embedded-postgres@54329
+Applying 276 pending migration(s)...
+Migrations complete
+[paperclip] building paperclip runner...
+
+> @paperclipai/paperclip-runner@0.0.0 build:typescript /Users/chetan/Documents/paperclip/packages/paperclip-runner
+> pnpm run ensure:eval-build-deps && pnpm run check:protocol-types && node ./node_modules/typescript/bin/tsc --version && node ./node_modules/typescript/bin/tsc -p tsconfig.json && node ./node_modules/typescript/bin/tsc -p tsconfig.surfaces.json && node scripts/build-verified-provider-entrypoints.mjs
+
+
+> @paperclipai/paperclip-runner@0.0.0 ensure:eval-build-deps /Users/chetan/Documents/paperclip/packages/paperclip-runner
+> pnpm --filter @paperclipai/paperclip-eval-kernel build
+
+
+> @paperclipai/paperclip-eval-kernel@0.1.0 build /Users/chetan/Documents/paperclip/packages/paperclip-eval-kernel
+> tsc -p tsconfig.json
+
+
+> @paperclipai/paperclip-runner@0.0.0 check:protocol-types /Users/chetan/Documents/paperclip/packages/paperclip-runner
+> node scripts/generate-protocol-schema-module.mjs --check && node scripts/generate-acpx-sidecar-contract.mjs --check
+
+Generated PRP schema modules match the JSON Schema sources.
+Generated TypeScript/Rust ACPX sidecar contracts match the schema.
+Version 7.0.2
+[paperclip] building paperclip runner native binary...
+
+> @paperclipai/paperclip-runner@0.0.0 build:binary /Users/chetan/Documents/paperclip/packages/paperclip-runner
+> cargo build --release --manifest-path runner/Cargo.toml --locked -p paperclip-runner-core --bin paperclip-runnerd && node scripts/stage-runner-binary.mjs
+
+info: syncing channel updates for 1.97.1-x86_64-apple-darwin
+info: latest update on 2026-07-16 for version 1.97.1 (8bab26f4f 2026-07-14)
+info: downloading 4 components
+    Updating crates.io index
+ Downloading crates ...
+  Downloaded aws-credential-types v1.3.0
+  Downloaded aws-smithy-observability v0.3.0
+  Downloaded cmov v0.5.4
+  Downloaded aws-smithy-runtime-api-macros v1.1.0
+  Downloaded aws-smithy-async v1.3.0
+  Downloaded base64-simd v0.8.0
+  Downloaded borrow-or-share v0.2.4
+  Downloaded aws-smithy-http v0.64.0
+  Downloaded aws-smithy-json v0.63.0
+  Downloaded bytes-utils v0.1.4
+  Downloaded data-encoding v2.11.1
+  Downloaded ctutils v0.4.2
+  Downloaded aws-smithy-schema v0.2.0
+  Downloaded aws-sigv4 v1.5.1
+  Downloaded email_address v0.2.9
+  Downloaded fluent-uri v0.4.1
+  Downloaded http-body v0.4.6
+  Downloaded http v0.2.12
+  Downloaded hmac v0.13.0
+  Downloaded pin-utils v0.1.0
+  Downloaded num-cmp v0.1.0
+  Downloaded num-rational v0.4.2
+  Downloaded num v0.4.3
+  Downloaded num-complex v0.4.6
+  Downloaded outref v0.5.2
+  Downloaded regex-lite v0.1.9
+  Downloaded reqwest v0.12.28
+  Downloaded rustls-native-certs v0.8.4
+  Downloaded rustls-pemfile v2.2.0
+  Downloaded aws-smithy-query v0.62.0
+  Downloaded aws-types v1.5.0
+  Downloaded aws-smithy-xml v0.62.0
+  Downloaded aws-smithy-types v1.6.2
+  Downloaded aws-runtime v1.9.1
+  Downloaded tokio-rustls v0.26.4
+  Downloaded toml_datetime v0.6.11
+  Downloaded toml_write v0.1.2
+  Downloaded utf-8 v0.7.6
+  Downloaded unicode-general-category v1.1.0
+  Downloaded vsimd v0.8.0
+  Downloaded urlencoding v2.1.3
+  Downloaded uuid-simd v0.8.0
+  Downloaded tungstenite v0.28.0
+  Downloaded xmlparser v0.13.6
+  Downloaded sha1 v0.11.0
+  Downloaded toml_edit v0.22.27
+  Downloaded aws-smithy-checksums v0.65.0
+  Downloaded jsonschema-regex v0.50.1
+  Downloaded lru v0.18.3
+  Downloaded aws-smithy-eventstream v0.61.2
+  Downloaded micromap v0.3.0
+  Downloaded jsonschema-value v0.50.1
+  Downloaded aws-smithy-runtime-api v1.15.0
+  Downloaded aws-config v1.11.0
+  Downloaded referencing v0.50.1
+  Downloaded aws-smithy-runtime v1.14.0
+  Downloaded aws-smithy-http-client v1.4.0
+  Downloaded fraction v0.16.0
+  Downloaded aws-sdk-sts v1.113.0
+  Downloaded fancy-regex v0.19.0
+  Downloaded jsonschema v0.50.1
+  Downloaded aws-sdk-bedrockagentcore v1.65.0
+  Downloaded aws-sdk-s3 v1.144.0
+   Compiling libc v0.2.189
+   Compiling proc-macro2 v1.0.107
+   Compiling unicode-ident v1.0.24
+   Compiling quote v1.0.47
+   Compiling cfg-if v1.0.4
+   Compiling zeroize v1.9.0
+   Compiling typenum v1.20.1
+   Compiling version_check v0.9.5
+   Compiling bytes v1.12.1
+   Compiling itoa v1.0.18
+   Compiling pin-project-lite v0.2.17
+   Compiling futures-core v0.3.34
+   Compiling memchr v2.8.3
+   Compiling subtle v2.6.1
+   Compiling autocfg v1.5.1
+   Compiling once_cell v1.21.4
+   Compiling futures-sink v0.3.34
+   Compiling slab v0.4.12
+   Compiling fnv v1.0.7
+   Compiling futures-task v0.3.34
+   Compiling generic-array v0.14.7
+   Compiling futures-io v0.3.34
+   Compiling tracing-core v0.1.36
+   Compiling find-msvc-tools v0.1.11
+   Compiling shlex v2.0.1
+   Compiling const-oid v0.9.6
+   Compiling num-traits v0.2.19
+   Compiling outref v0.5.2
+   Compiling vsimd v0.8.0
+   Compiling ryu v1.0.23
+   Compiling num-conv v0.2.2
+   Compiling http v1.5.0
+   Compiling futures-util v0.3.34
+   Compiling http v0.2.12
+   Compiling powerfmt v0.2.0
+   Compiling deranged v0.5.8
+   Compiling either v1.18.0
+   Compiling time-core v0.1.9
+   Compiling bytes-utils v0.1.4
+   Compiling base64-simd v0.8.0
+   Compiling http-body v1.1.0
+   Compiling pin-utils v0.1.0
+   Compiling http-body-util v0.1.5
+   Compiling smallvec v1.15.2
+   Compiling http-body v0.4.6
+   Compiling block-buffer v0.10.4
+   Compiling fs_extra v1.3.0
+   Compiling percent-encoding v2.3.2
+   Compiling pkg-config v0.3.34
+   Compiling dunce v1.0.5
+   Compiling syn v2.0.119
+   Compiling syn v3.0.4
+   Compiling foldhash v0.2.0
+   Compiling equivalent v1.0.2
+   Compiling stable_deref_trait v1.2.1
+   Compiling allocator-api2 v0.2.21
+   Compiling jobserver v0.1.35
+   Compiling rustls-pki-types v1.15.1
+   Compiling getrandom v0.2.17
+   Compiling mio v1.2.2
+   Compiling socket2 v0.6.5
+   Compiling rand_core v0.6.4
+   Compiling crypto-common v0.1.7
+   Compiling cc v1.4.4
+   Compiling time v0.3.55
+   Compiling digest v0.10.7
+   Compiling hashbrown v0.17.1
+   Compiling tokio v1.53.1
+   Compiling aws-lc-rs v1.18.1
+   Compiling base64ct v1.8.3
+   Compiling hybrid-array v0.4.14
+   Compiling bitflags v2.13.1
+   Compiling core-foundation-sys v0.8.7
+   Compiling pem-rfc7468 v0.7.0
+   Compiling cpufeatures v0.2.17
+   Compiling httparse v1.10.1
+   Compiling num-integer v0.1.47
+   Compiling cmake v0.1.58
+   Compiling untrusted v0.9.0
+   Compiling indexmap v2.14.1
+   Compiling der v0.7.10
+   Compiling rustls v0.23.43
+   Compiling cmov v0.5.4
+   Compiling block-buffer v0.12.1
+   Compiling crypto-common v0.2.2
+   Compiling core-foundation v0.10.1
+   Compiling aws-lc-sys v0.45.0
+   Compiling ring v0.17.14
+   Compiling ctutils v0.4.2
+   Compiling security-framework-sys v2.17.0
+   Compiling try-lock v0.2.5
+   Compiling serde_core v1.0.229
+   Compiling litemap v0.8.3
+   Compiling crc32fast v1.5.1
+   Compiling tower-service v0.3.3
+   Compiling const-oid v0.10.2
+   Compiling writeable v0.6.4
+   Compiling atomic-waker v1.1.2
+   Compiling want v0.3.1
+   Compiling security-framework v3.7.0
+   Compiling ff v0.13.1
+   Compiling futures-channel v0.3.34
+   Compiling digest v0.11.3
+   Compiling zerovec-derive v0.11.6
+   Compiling displaydoc v0.2.7
+   Compiling spki v0.7.3
+   Compiling icu_properties_data v2.3.0
+   Compiling pkcs8 v0.10.2
+   Compiling utf8_iter v1.0.4
+   Compiling icu_normalizer_data v2.3.0
+   Compiling base16ct v0.2.0
+   Compiling sec1 v0.7.3
+   Compiling group v0.13.0
+   Compiling crypto-bigint v0.5.5
+   Compiling form_urlencoded v1.2.2
+   Compiling sync_wrapper v1.0.2
+   Compiling getrandom v0.3.4
+   Compiling ipnet v2.12.1
+   Compiling tower-layer v0.3.3
+   Compiling serde v1.0.229
+   Compiling rustls-native-certs v0.8.4
+   Compiling zerocopy v0.8.56
+   Compiling synstructure v0.13.2
+   Compiling base64 v0.22.1
+   Compiling serde_derive v1.0.229
+   Compiling hmac v0.12.1
+   Compiling webpki-roots v1.0.9
+   Compiling semver v1.0.28
+   Compiling cpufeatures v0.3.1
+   Compiling rfc6979 v0.4.0
+   Compiling signature v2.2.0
+   Compiling elliptic-curve v0.13.8
+   Compiling rustc_version v0.4.1
+   Compiling tracing-attributes v0.1.31
+   Compiling zerofrom-derive v0.1.7
+   Compiling aws-smithy-runtime-api-macros v1.1.0
+   Compiling yoke-derive v0.8.2
+   Compiling getrandom v0.4.3
+   Compiling tokio-util v0.7.19
+   Compiling tracing v0.1.44
+   Compiling zerofrom v0.1.8
+   Compiling aws-smithy-async v1.3.0
+   Compiling tower v0.5.3
+   Compiling primeorder v0.13.6
+   Compiling ecdsa v0.16.9
+   Compiling aws-types v1.5.0
+   Compiling sha2 v0.11.0
+   Compiling aws-smithy-types v1.6.2
+   Compiling h2 v0.4.19
+   Compiling yoke v0.8.3
+   Compiling sha2 v0.10.9
+   Compiling hex v0.4.3
+   Compiling rustversion v1.0.23
+   Compiling zerovec v0.11.8
+   Compiling zerotrie v0.2.5
+   Compiling zmij v1.0.23
+   Compiling aws-smithy-runtime-api v1.15.0
+   Compiling aws-smithy-eventstream v0.61.2
+   Compiling tinystr v0.8.4
+   Compiling icu_locale_core v2.3.0
+   Compiling potential_utf v0.1.6
+   Compiling p256 v0.13.2
+   Compiling icu_collections v2.3.0
+   Compiling hmac v0.13.0
+   Compiling fastrand v2.5.0
+   Compiling serde_json v1.0.151
+   Compiling icu_provider v2.3.1
+   Compiling uuid v1.26.0
+   Compiling aws-smithy-schema v0.2.0
+   Compiling icu_normalizer v2.3.0
+   Compiling icu_properties v2.3.0
+   Compiling hyper v1.11.1
+   Compiling aws-smithy-http v0.64.0
+   Compiling aws-credential-types v1.3.0
+   Compiling aws-smithy-observability v0.3.0
+   Compiling aws-sigv4 v1.5.1
+   Compiling idna_adapter v1.2.2
+   Compiling idna v1.1.0
+   Compiling hyper-util v0.1.20
+   Compiling num-bigint v0.4.8
+   Compiling ahash v0.8.12
+   Compiling parking_lot_core v0.9.12
+   Compiling xmlparser v0.13.6
+   Compiling regex-syntax v0.8.11
+   Compiling ref-cast v1.0.27
+   Compiling aws-smithy-xml v0.62.0
+   Compiling arc-swap v1.9.2
+   Compiling url v2.5.8
+   Compiling aws-smithy-json v0.63.0
+   Compiling num-rational v0.4.2
+   Compiling ref-cast-impl v1.0.27
+   Compiling num-iter v0.1.46
+   Compiling num-complex v0.4.6
+   Compiling inout v0.1.4
+   Compiling aho-corasick v1.1.5
+   Compiling scopeguard v1.2.0
+   Compiling regex-lite v0.1.9
+   Compiling num v0.4.3
+   Compiling lock_api v0.4.14
+   Compiling cipher v0.4.4
+   Compiling ppv-lite86 v0.2.21
+   Compiling regex-automata v0.4.18
+   Compiling rand_core v0.9.5
+   Compiling universal-hash v0.5.1
+   Compiling borrow-or-share v0.2.4
+   Compiling thiserror v2.0.20
+   Compiling spin v0.10.1
+   Compiling bit-vec v0.8.0
+   Compiling heck v0.5.0
+   Compiling unicode-general-category v1.1.0
+   Compiling opaque-debug v0.3.1
+   Compiling urlencoding v2.1.3
+   Compiling polyval v0.6.2
+   Compiling aws-smithy-query v0.62.0
+   Compiling bit-set v0.8.0
+   Compiling strum_macros v0.28.0
+   Compiling crc-fast v1.10.0
+   Compiling fluent-uri v0.4.1
+   Compiling rand_chacha v0.9.0
+   Compiling parking_lot v0.12.5
+   Compiling fraction v0.16.0
+   Compiling sha1 v0.11.0
+   Compiling md-5 v0.11.0
+   Compiling thiserror-impl v2.0.20
+   Compiling data-encoding v2.11.1
+   Compiling log v0.4.34
+   Compiling rustix v1.1.4
+   Compiling bytecount v0.6.9
+   Compiling num-cmp v0.1.0
+   Compiling micromap v0.3.0
+   Compiling referencing v0.50.1
+   Compiling jsonschema-value v0.50.1
+   Compiling rand v0.9.5
+   Compiling strum v0.28.0
+   Compiling ghash v0.5.1
+   Compiling ctr v0.9.2
+   Compiling aes v0.8.4
+   Compiling jsonschema-regex v0.50.1
+   Compiling tower-http v0.6.11
+   Compiling serde_urlencoded v0.7.1
+   Compiling email_address v0.2.9
+   Compiling lru v0.18.3
+   Compiling sha1 v0.10.7
+   Compiling aead v0.5.2
+   Compiling fancy-regex v0.19.0
+   Compiling regex v1.13.1
+   Compiling errno v0.3.14
+   Compiling uuid-simd v0.8.0
+   Compiling winnow v0.7.15
+   Compiling toml_write v0.1.2
+   Compiling utf-8 v0.7.6
+   Compiling toml_datetime v0.6.11
+   Compiling aes-gcm v0.10.3
+   Compiling rustls-pemfile v2.2.0
+   Compiling jsonschema v0.50.1
+   Compiling aws-smithy-checksums v0.65.0
+   Compiling toml_edit v0.22.27
+   Compiling rustls-webpki v0.103.15
+   Compiling tokio-rustls v0.26.4
+   Compiling tungstenite v0.28.0
+   Compiling hyper-rustls v0.27.9
+   Compiling aws-smithy-http-client v1.4.0
+   Compiling reqwest v0.12.28
+   Compiling aws-smithy-runtime v1.14.0
+   Compiling aws-runtime v1.9.1
+   Compiling aws-sdk-sts v1.113.0
+   Compiling aws-sdk-s3 v1.144.0
+   Compiling aws-sdk-bedrockagentcore v1.65.0
+   Compiling aws-config v1.11.0
+   Compiling paperclip-runner-core v0.0.0 (/Users/chetan/Documents/paperclip/packages/paperclip-runner/runner/crates/runner-core)
+warning: fields `config` and `system_instructions` are never read
+    --> crates/runner-core/src/claude_managed_provider.rs:1248:5
+     |
+1232 | pub struct ClaudeManagedProvider {
+     |            --------------------- fields in this struct
+...
+1248 |     config: ClaudeManagedProviderConfig,
+     |     ^^^^^^
+1249 |     system_instructions: String,
+     |     ^^^^^^^^^^^^^^^^^^^
+     |
+     = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: function `receive_plain` is never used
+    --> crates/runner-core/src/durable/transport.rs:1545:4
+     |
+1545 | fn receive_plain(
+     |    ^^^^^^^^^^^^^
+
+warning: function `validate_tool_result_contract` is never used
+    --> crates/runner-core/src/provider_bridge.rs:1004:4
+     |
+1004 | fn validate_tool_result_contract(
+     |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: `paperclip-runner-core` (lib) generated 3 warnings
+    Finished `release` profile [optimized] target(s) in 7m 17s
+[paperclip] building plugin sdk...
+
+> @paperclipai/plugin-sdk@1.0.0 build /Users/chetan/Documents/paperclip/packages/plugins/sdk
+> pnpm --filter @paperclipai/shared build && tsc
+
+
+> @paperclipai/shared@0.3.1 build /Users/chetan/Documents/paperclip/packages/shared
+> tsc
+
+
+> @paperclipai/server@0.3.1 dev:watch /Users/chetan/Documents/paperclip/server
+> cross-env PAPERCLIP_MIGRATION_PROMPT=never PAPERCLIP_MIGRATION_AUTO_APPLY=true tsx ./scripts/dev-watch.ts
+
+[16:03:48] [32mINFO[39m: [36mUsing embedded PostgreSQL because no DATABASE_URL set (dataDir=/Users/chetan/.paperclip/instances/default/db, port=54329)[39m
+[16:03:48] [32mINFO[39m: [36mEmbedded PostgreSQL cluster already exists (/Users/chetan/.paperclip/instances/default/db/PG_VERSION); skipping init[39m
+[16:03:49] [32mINFO[39m: [36mEmbedded PostgreSQL ready[39m
+[16:03:49] [32mINFO[39m: [36mSetup-token login confidential transport startup assessment[39m [90m{"proxyForwardingEnabled":false,"reason":"no_proxy_allowlist_local_trusted_loopback_only","deploymentMode":"local_trusted"}[39m
+(!) Your Vite config uses features that are unsupported by `configLoader: 'native'`, which is planned to become the default in a future major version of Vite:
+  - `__dirname` (vite.config.ts:25:25). Use `import.meta.dirname` instead
+  - import "./src/lib/vite-watch" without a file extension (vite.config.ts:5:41). Add the file extension
+  - import "./src/lib/vite-api-proxy" without a file extension (vite.config.ts:6:32). Add the file extension
+  - import "./src/lib/vite-sw-build-id" without a file extension (vite.config.ts:7:44). Add the file extension
+Set `VITE_CONFIG_NATIVE_IGNORE_WARNING=true` to suppress this warning.
+`server.hmr.protocol/host/port/path/clientPort/timeout/server` is deprecated. Use `server.ws.*` instead. Note that this option may be set by a plugin. Set VITE_DEPRECATION_TRACE=1 to see where it is called.
+[16:03:52] [32mINFO[39m: [36mplugin job coordinator started — listening to lifecycle events[39m [90m{"service":"plugin-job-coordinator"}[39m
+[16:03:52] [32mINFO[39m: [36mplugin job scheduler started[39m [90m{"service":"plugin-job-scheduler","tickIntervalMs":30000,"maxConcurrentJobs":10}[39m
+[16:03:52] [32mINFO[39m: [36minitializing plugin tool dispatcher[39m [90m{"service":"plugin-tool-dispatcher"}[39m
+[16:03:52] [32mINFO[39m: [36mplugin-dev-watcher: initialized[39m [90m{"service":"plugin-dev-watcher","resolvesInstalledPlugins":true}[39m
+[16:03:52] [32mINFO[39m: [36mServer listener bound on 127.0.0.1:3100; startup recovery in progress[39m
+[16:03:53] [32mINFO[39m: [36mbundled plugin bundle not present; skipping auto-install[39m [90m{"pluginKey":"paperclip.kubernetes-sandbox-provider","pluginPath":"/app/packages/plugins/sandbox-providers/kubernetes"}[39m
+[16:03:53] [32mINFO[39m: [36mplugin-loader: loading all ready plugins[39m [90m{"service":"plugin-loader"}[39m
+[16:03:53] [32mINFO[39m: [36mloaded tools from ready plugins[39m [90m{"service":"plugin-tool-dispatcher","readyPlugins":0,"registeredTools":0}[39m
+[16:03:53] [34mDEBUG[39m: [36msubscribed to lifecycle events[39m [90m{"service":"plugin-tool-dispatcher"}[39m
+[16:03:53] [32mINFO[39m: [36mplugin tool dispatcher initialized[39m [90m{"service":"plugin-tool-dispatcher","totalTools":0}[39m
+4:03:53 PM [vite] (client) [optimizer] scanning dependencies...
+[16:03:53] [32mINFO[39m: [36mplugin-loader: no ready plugins to load[39m [90m{"service":"plugin-loader"}[39m
+[16:03:54] [32mINFO[39m: [36mworktree run-execution cutoff state[39m [90m{"state":"disarmed","cutoff":null}[39m
+4:03:55 PM [vite] (client) [optimizer] bundling dependencies...
+[16:04:02] [32mINFO[39m: [36mstartup reap of orphaned heartbeat runs complete[39m [90m{"reaped":0,"runIds":[]}[39m
+
+[36m██████╗  █████╗ ██████╗ ███████╗██████╗  ██████╗██╗     ██╗██████╗ [0m
+[36m██╔══██╗██╔══██╗██╔══██╗██╔════╝██╔══██╗██╔════╝██║     ██║██╔══██╗[0m
+[36m██████╔╝███████║██████╔╝█████╗  ██████╔╝██║     ██║     ██║██████╔╝[0m
+[36m██╔═══╝ ██╔══██║██╔═══╝ ██╔══╝  ██╔══██╗██║     ██║     ██║██╔═══╝ [0m
+[36m██║     ██║  ██║██║     ███████╗██║  ██║╚██████╗███████╗██║██║     [0m
+[36m╚═╝     ╚═╝  ╚═╝╚═╝     ╚══════╝╚═╝  ╚═╝ ╚═════╝╚══════╝╚═╝╚═╝     [0m
+[34m  ───────────────────────────────────────────────────────[0m
+[2mMode            [0m [32membedded-postgres[0m  |  [36mvite-dev-middleware[0m
+[2mDeploy          [0m local_trusted (private)
+[2mBind            [0m loopback [2m(127.0.0.1)[0m
+[2mAuth            [0m [32mready[0m
+[2mServer          [0m 3100
+[2mAPI             [0m http://127.0.0.1:3100/api [2m(health: http://127.0.0.1:3100/api/health)[0m
+[2mUI              [0m http://127.0.0.1:3100
+[2mDatabase        [0m /Users/chetan/.paperclip/instances/default/db [2m(pg:54329)[0m
+[2mMigrations      [0m already applied
+[2mAgent JWT       [0m [33mmissing (run `npx paperclipai onboard`)[0m
+[2mHeartbeat       [0m enabled [2m(30000ms)[0m
+[2mDB Backup       [0m enabled [2m(every 60m, keep 7d)[0m
+[2mBackup Dir      [0m /Users/chetan/.paperclip/instances/default/data/backups
+[2mConfig          [0m /Users/chetan/.paperclip/instances/default/config.json
+[33m  ───────────────────────────────────────────────────────[0m
+[34m  ───────────────────────────────────────────────────────[0m
+
+[16:04:06] [32mINFO[39m: [36mAutomatic database backups enabled[39m [90m{"intervalMinutes":60,"retentionSource":"instance-settings-db","backupDir":"/Users/chetan/.paperclip/instances/default/data/backups"}[39m
+[16:04:06] [32mINFO[39m: [36mServer startup recovery complete on 127.0.0.1:3100[39m
+[16:04:39] [32mINFO[39m: [36mPOST / 201[39m
+[16:04:40] [32mINFO[39m: [36mPOST /companies/672710bc-1a45-461d-bfcd-f7a4152eb667/agents 201[39m
+[16:04:40] [32mINFO[39m: [36mGET /adapters 200[39m
+[16:06:29] [33mWARN[39m: [36mPOST /api/companies/672710bc-1a45-461d-bfcd-f7a4152eb667/skills/import 422[39m [90m{"reqBody":{"source":"mattpocock/skills"},"routePath":"/companies/:companyId/skills/import"}[39m
+[16:06:29] [32mINFO[39m: [36mGET /companies/672710bc-1a45-461d-bfcd-f7a4152eb667/agents 200[39m
+[16:06:29] [33mWARN[39m: [36mPOST /api/companies/672710bc-1a45-461d-bfcd-f7a4152eb667/agents 400[39m [90m{"reqBody":{"name":"API Contracts Eng","role":"worker","title":"API/Contracts Engineer","adapterType":"opencode_local","adapterConfig":{"model":"zai-coding-plan/glm-5.2","cwd":"/Users/chetan/Documents/verify-ads-app"},"reportsToAgentId":"a48a7e50-7641-473c-8f5d-1675d0e74246","heartbeatEnabled":false,"desiredSkills":["implement","tdd","codebase-design","domain-modeling"]},"routePath":"/companies/:companyId/agents"}[39m
+[16:06:29] [33mWARN[39m: [36mPOST /api/companies/672710bc-1a45-461d-bfcd-f7a4152eb667/agents 400[39m [90m{"reqBody":{"name":"API Contracts Eng","role":"worker","title":"API/Contracts Engineer","adapterType":"opencode_local","adapterConfig":{"model":"zai-coding-plan/glm-5.2","cwd":"/Users/chetan/Documents/verify-ads-app"},"reportsToAgentId":"a48a7e50-7641-473c-8f5d-1675d0e74246","heartbeatEnabled":false},"routePath":"/companies/:companyId/agents"}[39m
+[16:06:29] [33mWARN[39m: [36mPOST /api/companies/672710bc-1a45-461d-bfcd-f7a4152eb667/agents 400[39m [90m{"reqBody":{"name":"Backend Eng","role":"worker","title":"Backend Engineer","adapterType":"opencode_local","adapterConfig":{"model":"zai-coding-plan/glm-5.2","cwd":"/Users/chetan/Documents/verify-ads-app"},"reportsToAgentId":"a48a7e50-7641-473c-8f5d-1675d0e74246","heartbeatEnabled":false,"desiredSkills":["implement","tdd","codebase-design","diagnosing-bugs"]},"routePath":"/companies/:companyId/agents"}[39m
+[16:06:29] [33mWARN[39m: [36mPOST /api/companies/672710bc-1a45-461d-bfcd-f7a4152eb667/agents 400[39m [90m{"reqBody":{"name":"Backend Eng","role":"worker","title":"Backend Engineer","adapterType":"opencode_local","adapterConfig":{"model":"zai-coding-plan/glm-5.2","cwd":"/Users/chetan/Documents/verify-ads-app"},"reportsToAgentId":"a48a7e50-7641-473c-8f5d-1675d0e74246","heartbeatEnabled":false},"routePath":"/companies/:companyId/agents"}[39m
+[16:06:29] [33mWARN[39m: [36mPOST /api/companies/672710bc-1a45-461d-bfcd-f7a4152eb667/agents 400[39m [90m{"reqBody":{"name":"Database Eng","role":"worker","title":"Database Engineer","adapterType":"opencode_local","adapterConfig":{"model":"zai-coding-plan/glm-5.2","cwd":"/Users/chetan/Documents/verify-ads-app"},"reportsToAgentId":"a48a7e50-7641-473c-8f5d-1675d0e74246","heartbeatEnabled":false,"desiredSkills":["implement","tdd","codebase-design","domain-modeling"]},"routePath":"/companies/:companyId/agents"}[39m
+[16:06:29] [33mWARN[39m: [36mPOST /api/companies/672710bc-1a45-461d-bfcd-f7a4152eb667/agents 400[39m [90m{"reqBody":{"name":"Database Eng","role":"worker","title":"Database Engineer","adapterType":"opencode_local","adapterConfig":{"model":"zai-coding-plan/glm-5.2","cwd":"/Users/chetan/Documents/verify-ads-app"},"reportsToAgentId":"a48a7e50-7641-473c-8f5d-1675d0e74246","heartbeatEnabled":false},"routePath":"/companies/:companyId/agents"}[39m
+[16:06:29] [33mWARN[39m: [36mPOST /api/companies/672710bc-1a45-461d-bfcd-f7a4152eb667/agents 400[39m [90m{"reqBody":{"name":"Frontend Eng","role":"worker","title":"Frontend Engineer (Angular)","adapterType":"opencode_local","adapterConfig":{"model":"zai-coding-plan/glm-5.2","cwd":"/Users/chetan/Documents/verify-ads-app"},"reportsToAgentId":"a48a7e50-7641-473c-8f5d-1675d0e74246","heartbeatEnabled":false,"desiredSkills":["implement","tdd","prototype"]},"routePath":"/companies/:companyId/agents"}[39m
+[16:06:29] [33mWARN[39m: [36mPOST /api/companies/672710bc-1a45-461d-bfcd-f7a4152eb667/agents 400[39m [90m{"reqBody":{"name":"Frontend Eng","role":"worker","title":"Frontend Engineer (Angular)","adapterType":"opencode_local","adapterConfig":{"model":"zai-coding-plan/glm-5.2","cwd":"/Users/chetan/Documents/verify-ads-app"},"reportsToAgentId":"a48a7e50-7641-473c-8f5d-1675d0e74246","heartbeatEnabled":false},"routePath":"/companies/:companyId/agents"}[39m
+[16:06:29] [33mWARN[39m: [36mPOST /api/companies/672710bc-1a45-461d-bfcd-f7a4152eb667/agents 400[39m [90m{"reqBody":{"name":"Reviewer","role":"worker","title":"Code Reviewer (high effort)","adapterType":"claude_local","adapterConfig":{"model":"claude-sonnet-5","cwd":"/Users/chetan/Documents/verify-ads-app"},"reportsToAgentId":"a48a7e50-7641-473c-8f5d-1675d0e74246","heartbeatEnabled":false,"desiredSkills":["code-review"]},"routePath":"/companies/:companyId/agents"}[39m
+[16:06:29] [33mWARN[39m: [36mPOST /api/companies/672710bc-1a45-461d-bfcd-f7a4152eb667/agents 400[39m [90m{"reqBody":{"name":"Reviewer","role":"worker","title":"Code Reviewer (high effort)","adapterType":"claude_local","adapterConfig":{"model":"claude-sonnet-5","cwd":"/Users/chetan/Documents/verify-ads-app"},"reportsToAgentId":"a48a7e50-7641-473c-8f5d-1675d0e74246","heartbeatEnabled":false},"routePath":"/companies/:companyId/agents"}[39m
+[16:06:29] [33mWARN[39m: [36mPOST /api/companies/672710bc-1a45-461d-bfcd-f7a4152eb667/agents 400[39m [90m{"reqBody":{"name":"Researcher","role":"worker","title":"Researcher (Hermes/GLM-5.3)","adapterType":"hermes_local","adapterConfig":{"model":"zai/glm-5.3","cwd":"/Users/chetan/Documents/verify-ads-app"},"reportsToAgentId":"a48a7e50-7641-473c-8f5d-1675d0e74246","heartbeatEnabled":false,"desiredSkills":["research","domain-modeling"]},"routePath":"/companies/:companyId/agents"}[39m
+[16:06:29] [33mWARN[39m: [36mPOST /api/companies/672710bc-1a45-461d-bfcd-f7a4152eb667/agents 400[39m [90m{"reqBody":{"name":"Researcher","role":"worker","title":"Researcher (Hermes/GLM-5.3)","adapterType":"hermes_local","adapterConfig":{"model":"zai/glm-5.3","cwd":"/Users/chetan/Documents/verify-ads-app"},"reportsToAgentId":"a48a7e50-7641-473c-8f5d-1675d0e74246","heartbeatEnabled":false},"routePath":"/companies/:companyId/agents"}[39m
+[16:06:29] [32mINFO[39m: [36mPOST /companies/672710bc-1a45-461d-bfcd-f7a4152eb667/projects 201[39m
+[16:06:29] [32mINFO[39m: [36mPOST /companies/672710bc-1a45-461d-bfcd-f7a4152eb667/goals 201[39m
+[16:06:30] [32mINFO[39m: [36mPOST /companies/672710bc-1a45-461d-bfcd-f7a4152eb667/issues 201[39m
+[16:06:30] [32mINFO[39m: [36mPOST /companies/672710bc-1a45-461d-bfcd-f7a4152eb667/issues 201[39m
+[16:06:30] [32mINFO[39m: [36mPOST /companies/672710bc-1a45-461d-bfcd-f7a4152eb667/issues 201[39m
+[16:06:30] [32mINFO[39m: [36mPOST /companies/672710bc-1a45-461d-bfcd-f7a4152eb667/issues 201[39m
+[16:06:30] [32mINFO[39m: [36mPOST /companies/672710bc-1a45-461d-bfcd-f7a4152eb667/issues 201[39m
+[16:06:30] [32mINFO[39m: [36mPOST /companies/672710bc-1a45-461d-bfcd-f7a4152eb667/issues 201[39m
+[16:06:30] [32mINFO[39m: [36mPOST /companies/672710bc-1a45-461d-bfcd-f7a4152eb667/issues 201[39m
+[16:06:30] [32mINFO[39m: [36mPOST /companies/672710bc-1a45-461d-bfcd-f7a4152eb667/issues 201[39m
+[16:06:30] [32mINFO[39m: [36mPOST /companies/672710bc-1a45-461d-bfcd-f7a4152eb667/issues 201[39m
+[16:06:30] [32mINFO[39m: [36mPOST /companies/672710bc-1a45-461d-bfcd-f7a4152eb667/issues 201[39m
+[16:06:30] [32mINFO[39m: [36mPOST /companies/672710bc-1a45-461d-bfcd-f7a4152eb667/issues 201[39m
+[16:06:30] [32mINFO[39m: [36mPOST /companies/672710bc-1a45-461d-bfcd-f7a4152eb667/issues 201[39m
+[16:06:30] [32mINFO[39m: [36mPOST /companies/672710bc-1a45-461d-bfcd-f7a4152eb667/issues 201[39m
+[16:06:30] [32mINFO[39m: [36mPOST /companies/672710bc-1a45-461d-bfcd-f7a4152eb667/issues 201[39m
+[16:06:30] [32mINFO[39m: [36mPOST /companies/672710bc-1a45-461d-bfcd-f7a4152eb667/issues 201[39m
+[16:06:30] [32mINFO[39m: [36mPOST /companies/672710bc-1a45-461d-bfcd-f7a4152eb667/issues 201[39m
+[16:06:30] [32mINFO[39m: [36mPOST /companies/672710bc-1a45-461d-bfcd-f7a4152eb667/issues 201[39m
+[16:06:30] [32mINFO[39m: [36mPOST /companies/672710bc-1a45-461d-bfcd-f7a4152eb667/issues 201[39m
+[16:06:30] [32mINFO[39m: [36mPOST /companies/672710bc-1a45-461d-bfcd-f7a4152eb667/issues 201[39m
+[16:06:30] [32mINFO[39m: [36mPOST /companies/672710bc-1a45-461d-bfcd-f7a4152eb667/issues 201[39m
+[16:06:31] [32mINFO[39m: [36mPOST /companies/672710bc-1a45-461d-bfcd-f7a4152eb667/issues 201[39m
+[16:06:31] [32mINFO[39m: [36mPOST /companies/672710bc-1a45-461d-bfcd-f7a4152eb667/issues 201[39m
+[16:06:31] [32mINFO[39m: [36mPOST /companies/672710bc-1a45-461d-bfcd-f7a4152eb667/issues 201[39m
+[16:06:31] [32mINFO[39m: [36mPOST /companies/672710bc-1a45-461d-bfcd-f7a4152eb667/issues 201[39m
+[16:06:31] [32mINFO[39m: [36mPOST /companies/672710bc-1a45-461d-bfcd-f7a4152eb667/issues 201[39m
+[16:06:31] [32mINFO[39m: [36mPOST /companies/672710bc-1a45-461d-bfcd-f7a4152eb667/issues 201[39m
+[16:06:31] [32mINFO[39m: [36mPOST /companies/672710bc-1a45-461d-bfcd-f7a4152eb667/issues 201[39m
+[16:06:31] [32mINFO[39m: [36mPOST /companies/672710bc-1a45-461d-bfcd-f7a4152eb667/issues 201[39m
+[16:06:31] [32mINFO[39m: [36mPOST /companies/672710bc-1a45-461d-bfcd-f7a4152eb667/issues 201[39m
+[16:06:31] [32mINFO[39m: [36mPOST /companies/672710bc-1a45-461d-bfcd-f7a4152eb667/issues 201[39m
+[16:06:31] [32mINFO[39m: [36mPOST /companies/672710bc-1a45-461d-bfcd-f7a4152eb667/issues 201[39m
+[16:06:31] [32mINFO[39m: [36mPOST /companies/672710bc-1a45-461d-bfcd-f7a4152eb667/issues 201[39m
+[16:06:31] [32mINFO[39m: [36mPOST /companies/672710bc-1a45-461d-bfcd-f7a4152eb667/issues 201[39m
+[16:06:31] [32mINFO[39m: [36mPATCH /issues/22620a22-68ae-4c1c-b117-d6cc4617d7f3 200[39m
+[16:06:31] [32mINFO[39m: [36mPATCH /issues/7b9a2b85-6e29-4b32-a392-6c37e96dcc73 200[39m
+[16:06:31] [32mINFO[39m: [36mPATCH /issues/7b684377-5cc3-454c-bd45-02575eae6d1c 200[39m
+[16:06:31] [32mINFO[39m: [36mPATCH /issues/7b684377-5cc3-454c-bd45-02575eae6d1c 200[39m
+[16:06:31] [32mINFO[39m: [36mPATCH /issues/02a0808f-ad1d-4ca1-81c8-e32efca5a51f 200[39m
+[16:06:31] [32mINFO[39m: [36mPATCH /issues/19598b1c-db71-4ce9-8f91-ce740d6c7843 200[39m
+[16:06:32] [32mINFO[39m: [36mPATCH /issues/19598b1c-db71-4ce9-8f91-ce740d6c7843 200[39m
+[16:06:32] [32mINFO[39m: [36mPATCH /issues/19598b1c-db71-4ce9-8f91-ce740d6c7843 200[39m
+[16:06:32] [32mINFO[39m: [36mPATCH /issues/cd25a1d3-87bf-4b88-adfa-0400358258e2 200[39m
+[16:06:32] [32mINFO[39m: [36mGET /companies/672710bc-1a45-461d-bfcd-f7a4152eb667/agents 200[39m
+[16:07:05] [33mWARN[39m: [36mPOST /api/companies/672710bc-1a45-461d-bfcd-f7a4152eb667/agents 400[39m [90m{"reqBody":{"name":"Probe Eng","role":"worker","adapterType":"opencode_local","adapterConfig":{"model":"zai-coding-plan/glm-5.2","cwd":"/Users/chetan/Documents/verify-ads-app"},"reportsToAgentId":"a48a7e50-7641-473c-8f5d-1675d0e74246","heartbeatEnabled":false},"routePath":"/companies/:companyId/agents"}[39m
+[16:07:05] [32mINFO[39m: [36mGET /companies/672710bc-1a45-461d-bfcd-f7a4152eb667/projects 200[39m
+[16:07:06] [32mINFO[39m: [36mPOST /companies/672710bc-1a45-461d-bfcd-f7a4152eb667/skills/scan-projects 200[39m
+[16:08:12] [32mINFO[39m: [36mPOST /companies/672710bc-1a45-461d-bfcd-f7a4152eb667/skills/import 201[39m
+[16:08:12] [32mINFO[39m: [36mPOST /companies/672710bc-1a45-461d-bfcd-f7a4152eb667/skills/import 201[39m
+[16:08:13] [32mINFO[39m: [36mPOST /companies/672710bc-1a45-461d-bfcd-f7a4152eb667/skills/import 201[39m
+[16:08:13] [32mINFO[39m: [36mPOST /companies/672710bc-1a45-461d-bfcd-f7a4152eb667/skills/import 201[39m
+[16:08:14] [32mINFO[39m: [36mPOST /companies/672710bc-1a45-461d-bfcd-f7a4152eb667/skills/import 201[39m
+[16:08:14] [32mINFO[39m: [36mPOST /companies/672710bc-1a45-461d-bfcd-f7a4152eb667/skills/import 201[39m
+[16:08:15] [32mINFO[39m: [36mPOST /companies/672710bc-1a45-461d-bfcd-f7a4152eb667/skills/import 201[39m
+[16:08:15] [32mINFO[39m: [36mPOST /companies/672710bc-1a45-461d-bfcd-f7a4152eb667/skills/import 201[39m
+[16:08:15] [32mINFO[39m: [36mPOST /companies/672710bc-1a45-461d-bfcd-f7a4152eb667/skills/import 201[39m
+[16:08:15] [33mWARN[39m: [36mPOST /api/companies/672710bc-1a45-461d-bfcd-f7a4152eb667/skills/import 403[39m [90m{"reqBody":{"source":"/Users/chetan/Documents/verify-ads-app/agentic-ads/.agents/skills/diagnosing-bugs"},"routePath":"/companies/:companyId/skills/import"}[39m
+[16:08:27] [32mINFO[39m: [36mPOST /companies/672710bc-1a45-461d-bfcd-f7a4152eb667/agents 201[39m
+[16:08:27] [32mINFO[39m: [36mPATCH /agents/215c1d0c-0652-42c7-abe6-30517da1e2f5 200[39m
+[16:08:27] [33mWARN[39m: [36mPOST /api/companies/672710bc-1a45-461d-bfcd-f7a4152eb667/agents 422[39m [90m{"reqBody":{"name":"Backend Eng","role":"engineer","title":"Backend Eng","desiredSkills":["implement","tdd","codebase-design","diagnosing-bugs"],"adapterType":"opencode_local","adapterConfig":{"model":"zai-coding-plan/glm-5.2","cwd":"/Users/chetan/Documents/verify-ads-app"},"runtimeConfig":{},"budgetMonthlyCents":0},"routePath":"/companies/:companyId/agents"}[39m
+[16:08:27] [32mINFO[39m: [36mPOST /companies/672710bc-1a45-461d-bfcd-f7a4152eb667/agents 201[39m
+[16:08:27] [32mINFO[39m: [36mPATCH /agents/6f673dda-f933-4c30-a62f-cd43356c430e 200[39m
+[16:08:27] [33mWARN[39m: [36mPOST /api/companies/672710bc-1a45-461d-bfcd-f7a4152eb667/agents 422[39m [90m{"reqBody":{"name":"Frontend Eng","role":"engineer","title":"Frontend Eng","desiredSkills":["implement","tdd","prototype","diagnosing-bugs"],"adapterType":"opencode_local","adapterConfig":{"model":"zai-coding-plan/glm-5.2","cwd":"/Users/chetan/Documents/verify-ads-app"},"runtimeConfig":{},"budgetMonthlyCents":0},"routePath":"/companies/:companyId/agents"}[39m
+[16:08:27] [32mINFO[39m: [36mPOST /companies/672710bc-1a45-461d-bfcd-f7a4152eb667/agents 201[39m
+[16:08:27] [32mINFO[39m: [36mPATCH /agents/ae8549b0-ea2d-4e94-8d70-696fb5788d57 200[39m
+[16:08:28] [32mINFO[39m: [36mPOST /companies/672710bc-1a45-461d-bfcd-f7a4152eb667/agents 201[39m
+[16:08:28] [32mINFO[39m: [36mPATCH /agents/a29e5532-09a4-4ebd-81f4-56429b865722 200[39m
+[16:08:28] [32mINFO[39m: [36mGET /companies/672710bc-1a45-461d-bfcd-f7a4152eb667/skills 200[39m
+[16:08:28] [32mINFO[39m: [36mGET /companies/672710bc-1a45-461d-bfcd-f7a4152eb667/agents 200[39m
+[16:08:57] [32mINFO[39m: [36mPOST /companies/672710bc-1a45-461d-bfcd-f7a4152eb667/agents 201[39m
+[16:08:57] [32mINFO[39m: [36mPATCH /agents/835c5316-9652-4143-a1a6-22ee5090c475 200[39m
+[16:08:57] [32mINFO[39m: [36mPOST /companies/672710bc-1a45-461d-bfcd-f7a4152eb667/agents 201[39m
+[16:08:57] [32mINFO[39m: [36mPATCH /agents/d4cd58ad-cfc7-4061-a57a-b05264cb5867 200[39m
+[16:08:57] [32mINFO[39m: [36mPATCH /issues/a65432b4-0157-4380-be66-f91c73835138 200[39m
+[16:08:57] [32mINFO[39m: [36mPATCH /issues/dd97dc40-2c8e-4f07-9026-911e07b2f28c 200[39m
+[16:08:57] [32mINFO[39m: [36mPATCH /issues/e5e7611f-f2c9-4569-9165-23867c6536c5 200[39m
+[16:08:57] [32mINFO[39m: [36mGET /agents/a48a7e50-7641-473c-8f5d-1675d0e74246 200[39m
+[16:08:57] [32mINFO[39m: [36mGET /agents/835c5316-9652-4143-a1a6-22ee5090c475 200[39m
+[16:08:57] [32mINFO[39m: [36mGET /agents/ae8549b0-ea2d-4e94-8d70-696fb5788d57 200[39m
+[16:08:57] [32mINFO[39m: [36mGET /companies/672710bc-1a45-461d-bfcd-f7a4152eb667/agents 200[39m
+[16:08:57] [32mINFO[39m: [36mGET /companies/672710bc-1a45-461d-bfcd-f7a4152eb667/issues 200[39m
+[16:08:57] [34mDEBUG[39m: [36msafe authenticated GET observed[39m [90m{"event":"safe_get_request_observed","route":"GET /api/companies/:companyId/issues","companyId":"672710bc-1a45-461d-bfcd-f7a4152eb667","actorType":"board","actorIdentityHash":"PNRwbDYBUTGUBp31","clientHash":"FMNDQJDB7aiZNOkh","cacheKeyHash":"B2ASvAJKVHUU_xAs","queryKeys":["excludeRoutineExecutions","includeBlockedBy","includeBlockedInboxAttention","includeLiveDescendantSummary","includePluginOperations","includeRoutineExecutions","limit","offset"],"requestCount":1,"durationMs":33,"statusCode":200,"responseBytes":76762,"compressedBytes":5048,"contentEncoding":"gzip","cacheStatus":"miss","etagOutcome":"none","referer":null,"visibilityHint":null}[39m
+[16:08:58] [33mWARN[39m: [36mlocal agent jwt secret missing or invalid; running without injected PAPERCLIP_API_KEY[39m [90m{"companyId":"672710bc-1a45-461d-bfcd-f7a4152eb667","agentId":"835c5316-9652-4143-a1a6-22ee5090c475","runId":"1d5b031d-bb21-4021-b99a-38f72a694712","adapterType":"opencode_local"}[39m
+[16:08:58] [33mWARN[39m: [36mruntime connection tools could not be delivered[39m [90m{"companyId":"672710bc-1a45-461d-bfcd-f7a4152eb667","agentId":"835c5316-9652-4143-a1a6-22ee5090c475","runId":"1d5b031d-bb21-4021-b99a-38f72a694712"}[39m
+[16:08:58] [33mWARN[39m: [36mlocal agent jwt secret missing or invalid; running without injected PAPERCLIP_API_KEY[39m [90m{"companyId":"672710bc-1a45-461d-bfcd-f7a4152eb667","agentId":"835c5316-9652-4143-a1a6-22ee5090c475","runId":"fec43ee1-4d7a-4851-947b-88fdc9fe64e9","adapterType":"opencode_local"}[39m
+[16:08:58] [33mWARN[39m: [36mruntime connection tools could not be delivered[39m [90m{"companyId":"672710bc-1a45-461d-bfcd-f7a4152eb667","agentId":"835c5316-9652-4143-a1a6-22ee5090c475","runId":"fec43ee1-4d7a-4851-947b-88fdc9fe64e9"}[39m
+[16:09:08] [32mINFO[39m: [36mterminal issue workspace reaper skipped all candidates[39m [90m{"checked":2,"eligible":0,"archived":0,"cleanupFailed":0,"skippedActiveRun":0,"skippedNonTerminalTree":0,"skippedUndelivered":2,"skippedRace":0,"skippedReopened":0,"skippedCooldown":0,"clearedStaleReopenPending":0}[39m
+[16:09:12] [32mINFO[39m: [36mGET /agents/a48a7e50-7641-473c-8f5d-1675d0e74246 200[39m
+[16:09:12] [32mINFO[39m: [36mGET /agents/215c1d0c-0652-42c7-abe6-30517da1e2f5 200[39m
+[16:09:12] [32mINFO[39m: [36mGET /agents/6f673dda-f933-4c30-a62f-cd43356c430e 200[39m
+[16:09:12] [32mINFO[39m: [36mGET /agents/ae8549b0-ea2d-4e94-8d70-696fb5788d57 200[39m
+[16:09:12] [32mINFO[39m: [36mGET /agents/a29e5532-09a4-4ebd-81f4-56429b865722 200[39m
+[16:09:12] [32mINFO[39m: [36mGET /agents/835c5316-9652-4143-a1a6-22ee5090c475 200[39m
+[16:09:12] [32mINFO[39m: [36mGET /agents/d4cd58ad-cfc7-4061-a57a-b05264cb5867 200[39m
+[16:09:32] [33mWARN[39m: [36mPOST /api/companies/672710bc-1a45-461d-bfcd-f7a4152eb667/secrets 400[39m [90m{"reqBody":{"key":"GITHUB_TOKEN","scope":"company"},"routePath":"/companies/:companyId/secrets"}[39m
+[16:09:32] [33mWARN[39m: [36mPOST /api/companies/672710bc-1a45-461d-bfcd-f7a4152eb667/secrets 400[39m [90m{"reqBody":{"name":"GITHUB_TOKEN"},"routePath":"/companies/:companyId/secrets"}[39m
+[16:09:48] [32mINFO[39m: [36mPOST /companies/672710bc-1a45-461d-bfcd-f7a4152eb667/secrets 201[39m
+[16:12:36] [32mINFO[39m: [36mheartbeat runtime-status sweeper cleared expired entries[39m [90m{"swept":1}[39m
+[16:19:36] [32mINFO[39m: [36mterminal issue workspace reaper skipped all candidates[39m [90m{"checked":2,"eligible":0,"archived":0,"cleanupFailed":0,"skippedActiveRun":0,"skippedNonTerminalTree":0,"skippedUndelivered":2,"skippedRace":0,"skippedReopened":0,"skippedCooldown":0,"clearedStaleReopenPending":0}[39m
+[16:27:36] [32mINFO[39m: [36mheartbeat runtime-status sweeper cleared expired entries[39m [90m{"swept":1}[39m
+[16:29:36] [32mINFO[39m: [36mterminal issue workspace reaper skipped all candidates[39m [90m{"checked":2,"eligible":0,"archived":0,"cleanupFailed":0,"skippedActiveRun":0,"skippedNonTerminalTree":0,"skippedUndelivered":2,"skippedRace":0,"skippedReopened":0,"skippedCooldown":0,"clearedStaleReopenPending":0}[39m
+[16:31:44] [32mINFO[39m: [36mGET /agents/me 200[39m
+[16:31:57] [32mINFO[39m: [36mGET /agents/me 200[39m
+[16:32:01] [32mINFO[39m: [36mGET /agents/me 200[39m
+[16:32:09] [32mINFO[39m: [36mGET /issues/dd97dc40-2c8e-4f07-9026-911e07b2f28c 200[39m
+[16:32:09] [33mWARN[39m: [36mGET /agents/me 401[39m [90m{"routePath":"/agents/me"}[39m
+[16:32:10] [33mWARN[39m: [36mPOST /api/issues/a65432b4-0157-4380-be66-f91c73835138/work-products 401[39m [90m{"reqBody":{"type":"commit","provider":"github","externalId":"1b08ec810479b9808e2f636966fa7bac02701888","title":"feat(middleware): per-tenant rate governor (spec 36 ticket 01 / AGE-17 MW-01)","url":"https://github.com/aimonk2025/verify-ads-app/commit/1b08ec810479b9808e2f636966fa7bac02701888","status":"active","isPrimary":true,"summary":"006_rate_governor.sql (schema ops + ops.rate_limit_windows, RLS ENABLE+FORCE), server/src/rate-governor.ts (checkAndIncrement + static caps meta 1/s, google_ads 4/s, ga4 0.25/s, gsc 0.25/s), wired into sync.controller.ts before the adapter call; rate_limit maps to 429 retryable. 11 new tests, suite 184/184 green.","createdByRunId":"1d5b031d-bb21-4021-b99a-38f72a694712"}}[39m
+[16:32:22] [33mWARN[39m: [36mGET /agents/me 401[39m [90m{"routePath":"/agents/me"}[39m
+[16:32:22] [32mINFO[39m: [36mGET /agents/me 200[39m
+[16:32:43] [33mWARN[39m: [36mPOST /api/issues/dd97dc40-2c8e-4f07-9026-911e07b2f28c/checkout 409[39m [90m{"reqBody":{"agentId":"835c5316-9652-4143-a1a6-22ee5090c475","expectedStatuses":["todo","backlog","blocked","in_progress","in_review"]},"routePath":"/issues/:id/checkout"}[39m
+[16:32:51] [33mWARN[39m: [36mGET /api/issues/dd97dc40-2c8e-4f07-9026-911e07b2f28c/attachments 401[39m
+[16:35:36] [32mINFO[39m: [36mGET /issues/dd97dc40-2c8e-4f07-9026-911e07b2f28c 200[39m
+[16:36:00] [32mINFO[39m: [36mGET /projects/7a6d4ac3-f92f-4c2e-b38e-89b71f7a5d2d 200[39m
+[16:37:03] [32mINFO[39m: [36mPOST /companies/672710bc-1a45-461d-bfcd-f7a4152eb667/issues 201[39m
+[16:37:03] [33mWARN[39m: [36mlocal agent jwt secret missing or invalid; running without injected PAPERCLIP_API_KEY[39m [90m{"companyId":"672710bc-1a45-461d-bfcd-f7a4152eb667","agentId":"ae8549b0-ea2d-4e94-8d70-696fb5788d57","runId":"41ba996f-f778-4889-85ab-0454d175cdd3","adapterType":"claude_local"}[39m
+[16:37:03] [33mWARN[39m: [36mruntime connection tools could not be delivered[39m [90m{"companyId":"672710bc-1a45-461d-bfcd-f7a4152eb667","agentId":"ae8549b0-ea2d-4e94-8d70-696fb5788d57","runId":"41ba996f-f778-4889-85ab-0454d175cdd3"}[39m
+[acpx] spawning agent: /Users/chetan/Documents/paperclip/packages/adapters/claude-local/node_modules/.bin/claude-agent-acp 
+[acpx] initialized protocol version 1
+[session/query] sessionId=a33ac22e-09b4-4afc-ace1-b7d7debb23f1 resume=none apiType=native baseUrl=native
+[16:37:45] [32mINFO[39m: [36mPATCH /issues/dd97dc40-2c8e-4f07-9026-911e07b2f28c 200[39m
+[16:39:37] [32mINFO[39m: [36mterminal issue workspace reaper skipped all candidates[39m [90m{"checked":3,"eligible":0,"archived":0,"cleanupFailed":0,"skippedActiveRun":0,"skippedNonTerminalTree":0,"skippedUndelivered":3,"skippedRace":0,"skippedReopened":0,"skippedCooldown":0,"clearedStaleReopenPending":0}[39m
+[16:39:57] [33mWARN[39m: [36mGET /api/agents/me 401[39m
+[16:40:31] [32mINFO[39m: [36mGET /issues/a65432b4-0157-4380-be66-f91c73835138 200[39m
+[16:40:43] [32mINFO[39m: [36mPOST /issues/a65432b4-0157-4380-be66-f91c73835138/comments 201[39m
+[16:40:57] [32mINFO[39m: [36mPOST /issues/a65432b4-0157-4380-be66-f91c73835138/work-products 201[39m
+[16:40:57] [32mINFO[39m: [36mDELETE /issues/a65432b4-0157-4380-be66-f91c73835138/comments/ef27ad4b-d1c5-4d33-a001-013bc4ac26a5 200[39m
+[16:41:05] [32mINFO[39m: [36mGET /issues/a65432b4-0157-4380-be66-f91c73835138/comments 200[39m
+[16:41:16] [32mINFO[39m: [36mGET /issues/a65432b4-0157-4380-be66-f91c73835138/comments 200[39m
+[16:41:27] [32mINFO[39m: [36mGET /agents/me 200[39m
+[16:41:30] [33mWARN[39m: [36mGET /agents/me 401[39m [90m{"routePath":"/agents/me"}[39m
+[16:41:42] [32mINFO[39m: [36mPOST /issues/a65432b4-0157-4380-be66-f91c73835138/comments 201[39m
+[16:41:42] [32mINFO[39m: [36mPATCH /issues/a65432b4-0157-4380-be66-f91c73835138 200[39m
+[16:41:51] [33mWARN[39m: [36mlocal agent jwt secret missing or invalid; running without injected PAPERCLIP_API_KEY[39m [90m{"companyId":"672710bc-1a45-461d-bfcd-f7a4152eb667","agentId":"ae8549b0-ea2d-4e94-8d70-696fb5788d57","runId":"f21f451e-ca52-4d3e-8da6-c9aab5c5b2da","adapterType":"claude_local"}[39m
+[16:41:51] [33mWARN[39m: [36mruntime connection tools could not be delivered[39m [90m{"companyId":"672710bc-1a45-461d-bfcd-f7a4152eb667","agentId":"ae8549b0-ea2d-4e94-8d70-696fb5788d57","runId":"f21f451e-ca52-4d3e-8da6-c9aab5c5b2da"}[39m
+[acpx] spawning agent: /Users/chetan/Documents/paperclip/packages/adapters/claude-local/node_modules/.bin/claude-agent-acp 
+[acpx] initialized protocol version 1
+[session/query] sessionId=a33ac22e-09b4-4afc-ace1-b7d7debb23f1 resume=a33ac22e-09b4-4afc-ace1-b7d7debb23f1 apiType=native baseUrl=native
+[16:42:10] [33mWARN[39m: [36mGET /api/agents/me 401[39m

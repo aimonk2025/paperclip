@@ -131,6 +131,11 @@ function VideoPreview({ artifact }: { artifact: CompanyArtifact }) {
   );
 }
 
+function isMarkdownContentType(contentType: string | null | undefined): boolean {
+  const normalized = (contentType ?? "").toLowerCase();
+  return normalized === "text/markdown" || normalized === "application/markdown";
+}
+
 function TextPreview({ artifact }: { artifact: CompanyArtifact }) {
   const preview = artifact.previewText?.trim();
   if (!preview) {
@@ -158,7 +163,11 @@ export function ArtifactPreview({ artifact }: { artifact: CompanyArtifact }) {
     case "document":
       return <TextPreview artifact={artifact} />;
     case "file":
-      return <PlaceholderPreview label="File" />;
+      return isMarkdownContentType(artifact.contentType) ? (
+        <TextPreview artifact={artifact} />
+      ) : (
+        <PlaceholderPreview label="File" />
+      );
     case "empty":
     default:
       return <PlaceholderPreview />;

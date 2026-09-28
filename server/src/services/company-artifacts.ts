@@ -107,13 +107,18 @@ function classifyMediaKind(contentType: string | null | undefined, fallback: Com
   if (!normalized) return fallback;
   if (normalized.startsWith("image/")) return "image";
   if (normalized.startsWith("video/")) return "video";
+  // Markdown is filed under "file" (not "text") so it surfaces in the Files
+  // filter. It still renders with the same rich text preview treatment as
+  // other text content in the UI (see ArtifactPreview's mediaKind switch).
+  if (normalized === "text/markdown" || normalized === "application/markdown") {
+    return "file";
+  }
   if (
     normalized.startsWith("text/") ||
     normalized === "application/json" ||
     normalized.endsWith("+json") ||
     normalized === "application/xml" ||
-    normalized.endsWith("+xml") ||
-    normalized === "application/markdown"
+    normalized.endsWith("+xml")
   ) {
     return "text";
   }
@@ -125,10 +130,30 @@ function contentTypeKindCondition(contentTypeExpression: SQL<string>, kind: Comp
   if (kind === "image") return sql`${contentTypeExpression} ILIKE 'image/%'`;
   if (kind === "video") return sql`${contentTypeExpression} ILIKE 'video/%'`;
   if (kind === "text") {
-    return sql`(${contentTypeExpression} ILIKE 'text/%' OR ${contentTypeExpression} IN ('application/json', 'application/xml', 'application/markdown') OR ${contentTypeExpression} ILIKE '%+json' OR ${contentTypeExpression} ILIKE '%+xml')`;
+    // Markdown is excluded here and included under "file" instead, matching
+    // classifyMediaKind's carve-out so the JS and SQL classifiers agree.
+    return sql`(
+      ${contentTypeExpression} NOT IN ('text/markdown', 'application/markdown')
+      AND (
+        ${contentTypeExpression} ILIKE 'text/%'
+        OR ${contentTypeExpression} IN ('application/json', 'application/xml')
+        OR ${contentTypeExpression} ILIKE '%+json'
+        OR ${contentTypeExpression} ILIKE '%+xml'
+      )
+    )`;
   }
   if (kind === "file") {
-    return sql`NOT (${contentTypeExpression} ILIKE 'image/%' OR ${contentTypeExpression} ILIKE 'video/%' OR ${contentTypeExpression} ILIKE 'text/%' OR ${contentTypeExpression} IN ('application/json', 'application/xml', 'application/markdown') OR ${contentTypeExpression} ILIKE '%+json' OR ${contentTypeExpression} ILIKE '%+xml')`;
+    return sql`(
+      ${contentTypeExpression} IN ('text/markdown', 'application/markdown')
+      OR NOT (
+        ${contentTypeExpression} ILIKE 'image/%'
+        OR ${contentTypeExpression} ILIKE 'video/%'
+        OR ${contentTypeExpression} ILIKE 'text/%'
+        OR ${contentTypeExpression} IN ('application/json', 'application/xml')
+        OR ${contentTypeExpression} ILIKE '%+json'
+        OR ${contentTypeExpression} ILIKE '%+xml'
+      )
+    )`;
   }
   return undefined;
 }

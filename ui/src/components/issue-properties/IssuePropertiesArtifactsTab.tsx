@@ -10,6 +10,7 @@ import type {
 import {
   MARKDOWN_REVIEW_DOCUMENT_MAX_BYTES,
   artifactReviewDocumentKey,
+  getAttachmentArtifactWorkProductMetadata,
   getMarkdownWorkProductAttachmentMetadata,
   isArtifactReviewDocumentKey,
 } from "@paperclipai/shared";
@@ -257,6 +258,77 @@ function MarkdownWorkProductRow({
   );
 }
 
+/** True when a work product is an attachment-backed HTML artifact. */
+function getHtmlWorkProductAttachmentMetadata(
+  workProduct: IssueWorkProduct,
+): AttachmentArtifactWorkProductMetadata | null {
+  const metadata = getAttachmentArtifactWorkProductMetadata(workProduct);
+  if (!metadata) return null;
+  return typeof metadata.contentType === "string" && metadata.contentType.includes("html") ? metadata : null;
+}
+
+/**
+ * Work-product row for an HTML artifact: renders the preview INLINE — a
+ * lazy-loaded sandboxed iframe shows the artifact content directly in the
+ * artifacts list, no click needed. Raw open and download stay as secondary
+ * actions in the header.
+ */
+function HtmlWorkProductRow({
+  workProduct,
+  metadata,
+}: {
+  workProduct: IssueWorkProduct;
+  metadata: AttachmentArtifactWorkProductMetadata;
+}) {
+  const badge = workProductStatusBadge(workProduct.status);
+  return (
+    <div className="rounded-md border border-border bg-card/50">
+      <div className="flex items-center hover:bg-accent/50">
+        <div className="flex min-w-0 flex-1 items-center gap-2 px-2.5 py-1.5 text-left text-sm">
+          <FileText className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+          <span className="min-w-0 flex-1 truncate">{workProduct.title}</span>
+          {badge ? (
+            <span
+              className="status-chip inline-flex shrink-0 items-center rounded-full border px-1.5 py-0.5 text-(length:--text-nano) leading-none whitespace-nowrap"
+              style={{ "--sc": `var(${badge.cssVar})` } as CSSProperties}
+            >
+              {badge.label}
+            </span>
+          ) : null}
+          <span className="shrink-0 text-(length:--text-micro) text-muted-foreground">HTML</span>
+        </div>
+        <a
+          href={metadata.openPath}
+          target="_blank"
+          rel="noreferrer"
+          aria-label={`Open raw ${workProduct.title}`}
+          title="Open raw"
+          className="shrink-0 px-1.5 py-1.5 text-muted-foreground hover:text-foreground"
+        >
+          <ExternalLink className="h-3 w-3" />
+        </a>
+        <a
+          href={metadata.downloadPath}
+          aria-label={`Download ${workProduct.title}`}
+          title="Download"
+          className="shrink-0 py-1.5 pr-2 pl-0.5 text-muted-foreground hover:text-foreground"
+        >
+          <Download className="h-3 w-3" />
+        </a>
+      </div>
+      <div className="border-t border-border p-2">
+        <iframe
+          src={metadata.openPath}
+          title={workProduct.title}
+          sandbox="allow-scripts allow-popups"
+          loading="lazy"
+          className="h-[420px] w-full rounded-md border border-border bg-white"
+        />
+      </div>
+    </div>
+  );
+}
+
 function DocumentRow({
   issueId,
   doc,
@@ -399,7 +471,15 @@ export function IssuePropertiesArtifactsTab({ issue, documentDeepLink, onOpenDoc
       date: new Date(value.createdAt),
       type: value.type === "artifact" && typeof value.metadata?.contentType === "string" && value.metadata.contentType.startsWith("image/")
         ? "image"
-        : value.type === "artifact" ? "file" : value.type,
+        : value.type === "artifact" && typeof value.metadata?.contentType === "string" && (
+            value.metadata.contentType.includes("html") ||
+            value.metadata.contentType.includes("xml") ||
+            value.metadata.contentType.includes("json") ||
+            value.metadata.contentType.includes("javascript") ||
+            value.metadata.contentType.includes("css")
+          )
+          ? "code"
+          : value.type === "artifact" ? "file" : value.type,
       value,
     })),
     ...documentRows.map((value): ArtifactRow => ({
@@ -462,6 +542,7 @@ export function IssuePropertiesArtifactsTab({ issue, documentDeepLink, onOpenDoc
           >
             <option value="all">All types</option>
             <option value="image">Images</option>
+            <option value="code">Code files</option>
             <option value="file">Files</option>
             <option value="pull_request">Pull requests</option>
             <option value="commit">Commits</option>
@@ -526,6 +607,14 @@ export function IssuePropertiesArtifactsTab({ issue, documentDeepLink, onOpenDoc
                           reviewDoc={reviewDocsByKey.get(reviewKey)}
                           openRequestId={documentDeepLink?.documentKey === reviewKey ? documentDeepLink.requestId : undefined}
                         />
+                      </li>
+                    );
+                  }
+                  const htmlMetadata = getHtmlWorkProductAttachmentMetadata(wp);
+                  if (htmlMetadata) {
+                    return (
+                      <li key={row.id}>
+                        <HtmlWorkProductRow workProduct={wp} metadata={htmlMetadata} />
                       </li>
                     );
                   }

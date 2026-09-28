@@ -238,6 +238,7 @@ import {
   formatAttachmentSize,
   GENERIC_ATTACHMENT_CONTENT_TYPES,
   isInlineAttachmentContentType,
+  matchesContentType,
   MAX_ATTACHMENT_BYTES,
   normalizeContentType,
   normalizeUploadAttachmentContentType,
@@ -18436,6 +18437,11 @@ export function issueRoutes(
         "Content-Security-Policy",
         "sandbox; default-src 'none'; img-src 'self' data:; style-src 'unsafe-inline'",
       );
+    } else if (matchesContentType(responseContentType, ["text/html"])) {
+      // Inline HTML artifacts render in the browser, but sandboxed: scripts
+      // run with an opaque origin so the artifact cannot reach Paperclip's
+      // session/API (same rule the artifacts-tab iframe applies).
+      res.setHeader("Content-Security-Policy", "sandbox allow-scripts");
     }
     const filename = attachment.originalFilename ?? "attachment";
     const disposition = parseBooleanQuery(req.query.download)

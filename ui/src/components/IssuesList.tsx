@@ -261,7 +261,7 @@ function getInitialWorkspaceViewState(
 }
 
 function getIssueColumnsStorageKey(key: string): string {
-  return `${key}:issue-columns`;
+  return `${key}:issue-columns-v2`;
 }
 
 function loadIssueCollectionPreferences(

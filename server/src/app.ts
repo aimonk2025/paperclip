@@ -510,6 +510,22 @@ export async function createApp(
   // when the server may be reachable without a known reverse proxy in front.
   applyTrustProxy(app, parseTrustProxyEnv(process.env.TRUST_PROXY));
 
+  // Operator-opt-in static directory for multi-file HTML artifacts (e.g.
+  // design bundles whose pages reference sibling CSS/JS/assets via relative
+  // paths that cannot survive attachment isolation). Mounted read-only with
+  // `dotfiles: "deny"`; no directory listing.
+  if (process.env.PAPERCLIP_STATIC_DIR && process.env.PAPERCLIP_STATIC_MOUNT) {
+    app.use(
+      process.env.PAPERCLIP_STATIC_MOUNT,
+      express.static(process.env.PAPERCLIP_STATIC_DIR, {
+        dotfiles: "deny",
+        index: false,
+        fallthrough: true,
+      }),
+    );
+  }
+
+
   app.use(
     COMPANY_IMPORT_API_PATH,
     express.json({
